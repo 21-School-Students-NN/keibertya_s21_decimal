@@ -1,0 +1,12 @@
+{
+    "dependencies": [
+      "build-essential",
+      "pkg-config",
+      "check",
+      "valgrind",
+      "clang-format-18",
+      "clang-tidy",
+      "cppcheck",
+      "lcov"
+    ]
+}

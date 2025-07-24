@@ -67,7 +67,7 @@ TST_OBJECTS		=		$(patsubst $(TST_SOURCE_DIR)/%.c, $(TST_BUILD_DIR)/%.o, $(TST_SO
 # =============================================================================
 # Main Targets
 # =============================================================================
-LIBRARY			::=		s21_string.a
+LIBRARY			::=		decimal.a
 
 .PHONY: all debug release style_format style_check gcov_report clean rebuild gdb help
 

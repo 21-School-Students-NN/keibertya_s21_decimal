@@ -10,7 +10,7 @@
 | `make test` | Run all tests with valgrind | Tests are run with memory checking enabled. Check test.log for detailed valgrind output |
 | `make %.test` | Run specific test suite | Name your test file as `test_<function>.c` and suite as `<function>` (without s21_ prefix). Example: `make strlen.test` for `test_strlen.c` |
 | `make gcov_report` | Generate code coverage report | Opens report in browser automatically (uses `open` on macOS, `xdg-open` on Linux). Report is generated in `coverage/web/` |
-| `make release` | Build release version | Enables optimizations (-O2) and disables debug info. Outputs to `s21_string.a` |
+| `make release` | Build release version | Enables optimizations (-O2) and disables debug info. Outputs to `decimal.a` |
 | `make gdb` | Build debug version and launch GDB | Enables debug symbols (-g) and automatically launches GDB. Use `tui enable` for better interface and `b main` to set breakpoint at main |
 | `make style-format` | Format code using clang-format | Uses Google style guide. Run this before committing your changes |
 | `make style-check` | Check code style and run cppcheck | Checks for style violations and potential bugs. Run this before committing |
