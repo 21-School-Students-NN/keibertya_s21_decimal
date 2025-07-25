@@ -21,7 +21,7 @@
 
 ```
 ├── src/           # Source files
-├── headers/       # Header files
+├── include/       # Header files
 ├── tests/         # Test files
 ├── build/         # Build artifacts
 │   ├── obj/      # Object files
