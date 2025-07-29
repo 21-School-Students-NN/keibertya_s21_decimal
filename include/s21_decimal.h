@@ -6,9 +6,11 @@
 #ifndef S21_DECIMAL_H
 #define S21_DECIMAL_H
 
+#include <stdint.h>
+
 /** @brief Structure to represent decimal numbers with a mantissa and exponent */
 typedef struct {
-    int bits[4];
+    uint32_t bits[4];
 } s21_decimal;
 
 /*======================================================================
@@ -18,7 +20,7 @@ typedef struct {
 /** @brief Operation completed successfully */
 #define S21_SUCCESS 0
 /** @brief Generic error code */
-#define ERROR 1
+#define S21_ERROR 1
 
 /** @brief Number is too large or equal to infinity */
 #define S21_TOO_LARGE 1

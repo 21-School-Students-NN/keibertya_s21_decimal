@@ -6,8 +6,7 @@
 
 int main(void) {
   int number_failed;
-  // TODO: initialize SRunner by adding first suit (change s21_your_suite())
-  SRunner *sr = srunner_create(s21_your_suite());
+  SRunner *sr = srunner_create(s21_helpers_suite());
 
   // TODO: add after comment your suits...
 
