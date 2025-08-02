@@ -1,3 +1,5 @@
+<!-- TODO(anybody): take English version and rewrite Russian based on it -->
+
 # Проект 21 School - `decimal`
 
 ![string+](misc/s21_decimal.png)

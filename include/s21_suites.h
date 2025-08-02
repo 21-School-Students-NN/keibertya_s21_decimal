@@ -3,6 +3,6 @@
 
 #include <check.h>
 
-// TODO: don't forget to add new suits here...
+// TODO(all): don't forget to add new suits here...
 
 #endif /* S21_SUITES_H */

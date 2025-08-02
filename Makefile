@@ -49,8 +49,8 @@ OBJ_BUILD_DIR	::=		./build/obj
 TST_SOURCE_DIR	::=		./tests
 TST_BUILD_DIR	::=		./build/test
 
-COV_REPORT_DIR	::=		../coverage
-COV_FRONT_DIR	::=		../coverage/web
+COV_REPORT_DIR	::=		./coverage
+COV_FRONT_DIR	::=		./coverage/web
 
 STAMP			::=		./build/cflags.stamp
 
@@ -118,8 +118,9 @@ help:
 # =============================================================================
 $(LIBRARY): $(LIB_OBJECTS) $(REBUILD)
 	$(info Assembling all together to static lib...)
-	@ar rcs ../$@ $(LIB_OBJECTS)
-	@ranlib ../$@
+	@ar rcs $@ $(LIB_OBJECTS)
+	@ranlib $@
+# TODO(trelawnm): create symbolyc or hard link for "s21_decimal.h" to be easy taken by compiler on Verter proccess 
 
 $(OBJ_BUILD_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c $(FLAG_FILE) | $(OBJ_BUILD_DIR)
 	$(info Building the $@ object file...)
@@ -130,17 +131,17 @@ $(OBJ_BUILD_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c $(FLAG_FILE) | $(OBJ_BUILD_DIR)
 # =============================================================================
 test: $(TST_OBJECTS) $(LIBRARY)
 	$(info Compile tests and running with valgrind...)
-	@$(CC) $(CFLAGS) $(TST_OBJECTS) ../$(LIBRARY) $(TST_FLAG) -o ../$@
-	@CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes ../$@
+	@$(CC) $(CFLAGS) $(TST_OBJECTS) $(LIBRARY) $(TST_FLAG) -o $@
+	@CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes $@
 
 $(TST_BUILD_DIR)/%.o: $(TST_SOURCE_DIR)/%.c $(FLAG_FILE) | $(TST_BUILD_DIR)
 	$(info Building the $@ object file...)
 	@$(CC) $(CFLAGS) -c $< $(TST_FLAG) -o $@
 
 
-%.test: ../test
+%.test: ./test
 	$(info Runing $*-test with valgrind...)
-	@CK_RUN_SUITE="$*" CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes ../test
+	@CK_RUN_SUITE="$*" CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes test
 
 # =============================================================================
 # Assemble Coverage Data to Web-Page
@@ -164,6 +165,19 @@ style_check: $(LIB_SOURCE) $(TST_SOURCE)
 	@cppcheck --enable=all --force --suppress=missingIncludeSystem --check-level=exhaustive --error-exitcode=1 $(LIB_SOURCE) $(TST_SOURCE)
 	@echo "Style check passed successfully!"
 
+#  TODO(trelawnm): have a look, does the target-specific call will work
+clang_tidy_%: $(LIB_SOURCE) $(TST_SOURCE)
+	$(info Checking style with clang-tidy in special files...)
+	@clang-tidy src/$*.c --fix -checks=-*,clang-analyzer-*,google-*,performance-*,portability-*,readability-* -- -Iinclude $(LIB_SOURCE) $(TST_SOURCE)
+
+extra_style_format: $(LIB_SOURCE) $(TST_SOURCE)
+	$(info Formatting code with clang-tidy...)
+	@clang-tidy ./*/*.[h,c] --fix -checks=-*,clang-analyzer-*,google-*,performance-*,portability-*,readability-* -- -Iinclude $(LIB_SOURCE) $(TST_SOURCE)
+
+extra_style_check: $(LIB_SOURCE) $(TST_SOURCE)
+	$(info Checking style with clang-tidy...)
+	@clang-tidy ./*/*.[h,c] -header-filter=.* -checks=-*,clang-analyzer-*,google-*,performance-*,portability-*,readability-* -- -Iinclude $(LIB_SOURCE) $(TST_SOURCE)
+
 # =============================================================================
 # Build Mode Rules
 # =============================================================================
@@ -172,11 +186,11 @@ release: $(LIBRARY)
 
 gdb: test
 	$(info Running with gdb...)
-	@CK_FORK=no gdb ../test
+	@CK_FORK=no gdb ./test
 
 clean:
 	$(info Cleaning the build artifacts...)
-	@rm -rf $(OBJ_BUILD_DIR) $(TST_BUILD_DIR) ../$(LIBRARY) ../test* ../*.test ../coverage
+	@rm -rf $(OBJ_BUILD_DIR) $(TST_BUILD_DIR) $(LIBRARY) ./test* ./*.test ./coverage
 
 rebuild: clean all
 

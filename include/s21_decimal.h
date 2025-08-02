@@ -6,9 +6,10 @@
 #ifndef S21_DECIMAL_H
 #define S21_DECIMAL_H
 
-/** @brief Structure to represent decimal numbers with a mantissa and exponent */
+/** @brief Structure to represent decimal numbers with a mantissa and exponent
+ */
 typedef struct {
-    int bits[4];
+  int bits[4];
 } s21_decimal;
 
 /*======================================================================
@@ -32,7 +33,6 @@ typedef struct {
 /** @brief `True` value for comparison operations */
 #define S21_TRUE 1
 
-
 /*======================================================================
     ARITHMETIC OPERATORS
 ======================================================================*/
@@ -42,9 +42,10 @@ typedef struct {
  * @param value_1 First addend
  * @param value_2 Second addend
  * @param result Pointer to store the sum
- * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division by zero)
- * @author 
- * @date 
+ * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division
+ * by zero)
+ * @author
+ * @date
  */
 int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
@@ -53,9 +54,10 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
  * @param value_1 Minuend
  * @param value_2 Subtrahend
  * @param result Pointer to store the difference
- * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division by zero)
- * @author 
- * @date 
+ * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division
+ * by zero)
+ * @author
+ * @date
  */
 int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
@@ -64,9 +66,10 @@ int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
  * @param value_1 First factor
  * @param value_2 Second factor
  * @param result Pointer to store the product
- * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division by zero)
- * @author 
- * @date 
+ * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division
+ * by zero)
+ * @author
+ * @date
  */
 int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
@@ -75,9 +78,10 @@ int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
  * @param value_1 Dividend
  * @param value_2 Divisor
  * @param result Pointer to store the quotient
- * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division by zero)
- * @author 
- * @date 
+ * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division
+ * by zero)
+ * @author
+ * @date
  */
 int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
@@ -90,8 +94,8 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
  * @param value_1 First decimal number to compare
  * @param value_2 Second decimal number to compare
  * @return Comparison result: `0` (FALSE), `1` (TRUE)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_is_less(s21_decimal value_1, s21_decimal value_2);
 
@@ -100,8 +104,8 @@ int s21_is_less(s21_decimal value_1, s21_decimal value_2);
  * @param value_1 First decimal number to compare
  * @param value_2 Second decimal number to compare
  * @return Comparison result: `0` (FALSE), `1` (TRUE)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_is_less_or_equal(s21_decimal value_1, s21_decimal value_2);
 
@@ -110,8 +114,8 @@ int s21_is_less_or_equal(s21_decimal value_1, s21_decimal value_2);
  * @param value_1 First decimal number to compare
  * @param value_2 Second decimal number to compare
  * @return Comparison result: `0` (FALSE), `1` (TRUE)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_is_greater(s21_decimal value_1, s21_decimal value_2);
 
@@ -120,8 +124,8 @@ int s21_is_greater(s21_decimal value_1, s21_decimal value_2);
  * @param value_1 First decimal number to compare
  * @param value_2 Second decimal number to compare
  * @return Comparison result: `0` (FALSE), `1` (TRUE)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_is_greater_or_equal(s21_decimal value_1, s21_decimal value_2);
 
@@ -130,8 +134,8 @@ int s21_is_greater_or_equal(s21_decimal value_1, s21_decimal value_2);
  * @param value_1 First decimal number to compare
  * @param value_2 Second decimal number to compare
  * @return Comparison result: `0` (FALSE), `1` (TRUE)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_is_equal(s21_decimal value_1, s21_decimal value_2);
 
@@ -140,8 +144,8 @@ int s21_is_equal(s21_decimal value_1, s21_decimal value_2);
  * @param value_1 First decimal number to compare
  * @param value_2 Second decimal number to compare
  * @return Comparison result: `0` (FALSE), `1` (TRUE)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_is_not_equal(s21_decimal value_1, s21_decimal value_2);
 
@@ -154,8 +158,8 @@ int s21_is_not_equal(s21_decimal value_1, s21_decimal value_2);
  * @param src Integer to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_from_int_to_decimal(int src, s21_decimal *dst);
 
@@ -164,8 +168,8 @@ int s21_from_int_to_decimal(int src, s21_decimal *dst);
  * @param src Float to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_from_float_to_decimal(float src, s21_decimal *dst);
 
@@ -174,8 +178,8 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst);
  * @param src Decimal to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_from_decimal_to_int(s21_decimal src, int *dst);
 
@@ -184,8 +188,8 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst);
  * @param src Decimal to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_from_decimal_to_float(s21_decimal src, float *dst);
 
@@ -198,8 +202,8 @@ int s21_from_decimal_to_float(s21_decimal src, float *dst);
  * @param value Decimal number to round
  * @param result Pointer to store the rounded value
  * @return Error code: `0` (OK), `1` (error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_floor(s21_decimal value, s21_decimal *result);
 
@@ -208,8 +212,8 @@ int s21_floor(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to round
  * @param result Pointer to store the rounded value
  * @return Error code: `0` (OK), `1` (error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_round(s21_decimal value, s21_decimal *result);
 
@@ -218,8 +222,8 @@ int s21_round(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to truncate
  * @param result Pointer to store the truncated value
  * @return Error code: `0` (OK), `1` (error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_truncate(s21_decimal value, s21_decimal *result);
 
@@ -228,9 +232,9 @@ int s21_truncate(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to negate
  * @param result Pointer to store the negated value
  * @return Error code: `0` (OK), `1` (error)
- * @author 
- * @date 
+ * @author
+ * @date
  */
 int s21_negate(s21_decimal value, s21_decimal *result);
 
-#endif // S21_DECIMAL_H
+#endif  // S21_DECIMAL_H
