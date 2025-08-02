@@ -13,6 +13,9 @@ typedef struct {
     uint32_t bits[4];
 } s21_decimal;
 
+/** @brief Data type for holding the meta information about decimal such `sign` or `scale` */
+typedef unsigned char meta_t;
+
 /*======================================================================
     STATUS CODE DEFINITIONS
 ======================================================================*/
