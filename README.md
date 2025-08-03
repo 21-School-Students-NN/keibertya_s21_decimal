@@ -1,4 +1,4 @@
-# <span><img style="height: 1em;" src="../misc/heart.gif"></span> The 21 School project - `decimal`
+# <span><a href="https://21-school.ru/?utm_source=school21&utm_medium=student_nino&utm_campaign=trelawnm___"><img style="height: 1em;" src="misc/heart.gif"></a></span> The 21 School project - `decimal`
 
 ![decimal](misc/s21_decimal.png)
 
