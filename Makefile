@@ -150,7 +150,7 @@ gcov_report: $(COV_FRONT_DIR) test
 	$(info Generating coverage report...)
 	@lcov --test-name "s21_string" -v --output-file $(COV_REPORT_DIR)/coverage.info --capture --directory $(OBJ_BUILD_DIR)
 	@genhtml $(COV_REPORT_DIR)/coverage.info --show-navigation --dark-mode --legend --output-directory $(COV_FRONT_DIR)
-	@$(OPENCMD) $(COV_FRONT_DIR)/index.html
+	@$(OPENCMD) $(COV_FRONT_DIR)/index.html || true
 
 # =============================================================================
 # Code Quality Rules
