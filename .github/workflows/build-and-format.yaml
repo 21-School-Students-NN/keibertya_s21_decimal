@@ -4,7 +4,11 @@ run-name: Push to ${{ github.ref }} by @${{ github.actor }}
 
 on:
   pull_request:
-    branches: [ $default-branch ]
+    types:
+      - opened
+      - reopened
+    branches:
+      - $default-branch
 
 jobs:
   build:
