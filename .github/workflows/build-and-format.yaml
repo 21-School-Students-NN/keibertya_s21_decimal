@@ -8,7 +8,7 @@ on:
       - opened
       - reopened
     branches:
-      - $default-branch
+      - develop
 
 jobs:
   build:
