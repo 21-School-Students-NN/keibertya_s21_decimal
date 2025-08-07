@@ -8,13 +8,11 @@
 
 #include <stdint.h>
 
-/** @brief Structure to represent decimal numbers with a mantissa and exponent */
+/** @brief Structure to represent decimal numbers with a mantissa and exponent
+ */
 typedef struct {
-    uint32_t bits[4];
+  uint32_t bits[4];
 } s21_decimal;
-
-/** @brief Data type for holding the meta information about decimal such `sign` or `scale` */
-typedef unsigned char meta_t;
 
 /*======================================================================
     STATUS CODE DEFINITIONS

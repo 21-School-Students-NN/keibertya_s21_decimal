@@ -5,8 +5,12 @@
 
 #include "s21_decimal.h"
 
-#define SCALE_MASK 0x001F0000 // bit mask for scale bits 16-23 (8 bits) 0x1F
-#define SIGN_MASK 0x80000000 // bit mask for sign bit 31
+#define SCALE_MASK 0x001F0000  // bit mask for scale bits 16-23 (8 bits) 0x1F
+#define SIGN_MASK 0x80000000   // bit mask for sign bit 31
+
+/** @brief Data type for holding the meta information about decimal such `sign`
+ * or `scale` */
+typedef unsigned char meta_t;
 
 /**
  * @brief Gets the scale (exponent) from a decimal number
@@ -55,4 +59,4 @@ int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
  */
 void _init_decimal_zero(s21_decimal *dec) __attribute__((nonnull));
 
-#endif // S21_HELPERS_H
+#endif  // S21_HELPERS_H
