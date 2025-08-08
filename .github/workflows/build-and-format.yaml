@@ -4,7 +4,11 @@ run-name: Push to ${{ github.ref }} by @${{ github.actor }}
 
 on:
   pull_request:
-    branches: [ $default-branch ]
+    types:
+      - opened
+      - reopened
+    branches:
+      - develop
 
 jobs:
   build:
@@ -50,16 +54,13 @@ jobs:
         echo "Style check passed!"
 
     - name: Build library
-      run: make s21_string.a
+      run: make s21_decimal.a
 
     - name: Run tests
       run: make test
 
     - name: Generate coverage report
       run: make gcov_report
-
-    - name: Build release version
-      run: make release
 
     - name: Clean build artifacts
       run: make clean

@@ -41,7 +41,7 @@ endif
 # =============================================================================
 # Directory Structure
 # =============================================================================
-HEADERS			::=		./headers
+INCLUDE			::=		./include
 
 LIB_SOURCE_DIR	::=		./src
 OBJ_BUILD_DIR	::=		./build/obj
@@ -67,7 +67,8 @@ TST_OBJECTS		=		$(patsubst $(TST_SOURCE_DIR)/%.c, $(TST_BUILD_DIR)/%.o, $(TST_SO
 # =============================================================================
 # Main Targets
 # =============================================================================
-LIBRARY			::=		decimal.a
+LIBRARY			::=		s21_decimal.a
+HEADER			::=		s21_decimal.h
 
 .PHONY: all debug release style_format style_check gcov_report clean rebuild gdb help
 
@@ -111,16 +112,15 @@ help:
 	@printf "\t%-20s %s\n" "$(COV_FRONT_DIR)" "directory with coverage static web-page"
 	@printf "\t%-20s %s\n" "$(OBJ_BUILD_DIR)" "directory with object files"
 	@printf "\t%-20s %s\n" "$(TST_BUILD_DIR)" "directory with test object files"
-	@printf "\t%-20s %s\n" "$(HEADERS)" "directory with header files"
+	@printf "\t%-20s %s\n" "$(INCLUDE)" "directory with header files"
 
 # =============================================================================
 # Build Rules
 # =============================================================================
-$(LIBRARY): $(LIB_OBJECTS) $(REBUILD)
+$(LIBRARY): $(LIB_OBJECTS) $(REBUILD) ./$(HEADER)
 	$(info Assembling all together to static lib...)
 	@ar rcs $@ $(LIB_OBJECTS)
 	@ranlib $@
-# TODO(trelawnm): create symbolyc or hard link for "s21_decimal.h" to be easy taken by compiler on Verter proccess 
 
 $(OBJ_BUILD_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c $(FLAG_FILE) | $(OBJ_BUILD_DIR)
 	$(info Building the $@ object file...)
@@ -132,7 +132,7 @@ $(OBJ_BUILD_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c $(FLAG_FILE) | $(OBJ_BUILD_DIR)
 test: $(TST_OBJECTS) $(LIBRARY)
 	$(info Compile tests and running with valgrind...)
 	@$(CC) $(CFLAGS) $(TST_OBJECTS) $(LIBRARY) $(TST_FLAG) -o $@
-	@CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes $@
+	@CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes ./test
 
 $(TST_BUILD_DIR)/%.o: $(TST_SOURCE_DIR)/%.c $(FLAG_FILE) | $(TST_BUILD_DIR)
 	$(info Building the $@ object file...)
@@ -141,15 +141,15 @@ $(TST_BUILD_DIR)/%.o: $(TST_SOURCE_DIR)/%.c $(FLAG_FILE) | $(TST_BUILD_DIR)
 
 %.test: ./test
 	$(info Runing $*-test with valgrind...)
-	@CK_RUN_SUITE="$*" CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes test
+	@CK_RUN_SUITE="$*" CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes ./test
 
 # =============================================================================
 # Assemble Coverage Data to Web-Page
 # =============================================================================
 gcov_report: $(COV_FRONT_DIR) test
 	$(info Generating coverage report...)
-	@lcov --test-name "s21_string" --output-file $(COV_REPORT_DIR)/coverage.info --capture --directory $(OBJ_BUILD_DIR)
-	@genhtml $(COV_REPORT_DIR)/coverage.info --dark-mode --output-directory $(COV_FRONT_DIR)
+	@lcov --test-name "s21_string" -v --output-file $(COV_REPORT_DIR)/coverage.info --capture --directory $(OBJ_BUILD_DIR)
+	@genhtml $(COV_REPORT_DIR)/coverage.info --show-navigation --dark-mode --legend --output-directory $(COV_FRONT_DIR)
 	@$(OPENCMD) $(COV_FRONT_DIR)/index.html || true
 
 # =============================================================================
@@ -190,9 +190,16 @@ gdb: test
 
 clean:
 	$(info Cleaning the build artifacts...)
-	@rm -rf $(OBJ_BUILD_DIR) $(TST_BUILD_DIR) $(LIBRARY) ./test* ./*.test ./coverage
+	@rm -rf $(OBJ_BUILD_DIR) $(TST_BUILD_DIR) $(LIBRARY) ./test ./*.test ./coverage ./*.log ./s21_decimal.h
 
 rebuild: clean all
+
+# =============================================================================
+# Extra-targets
+# =============================================================================
+$(HEADER):
+	$(info Creating symbolic linc to the header file...)
+	@ln --symbolic include/s21_decimal.h
 
 # =============================================================================
 # Directory creation
