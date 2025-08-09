@@ -3,22 +3,22 @@
 #include <string.h>
 
 #include "../include/s21_suites.h"
+#define FILENAME_SIZE 128
 
 int main(void) {
   int number_failed;
-  // TODO: initialize SRunner by adding first suit (change s21_your_suite())
-  SRunner *sr = srunner_create(s21_your_suite());
+  SRunner *sr = srunner_create(s21_helpers_suite());
 
-  // TODO: add after comment your suits...
+  //  TODO(all): add after comment your suits...
 
-  // Check for CK_RUN_SUITE and set a custom log file
+  //  Check for CK_RUN_SUITE and set a custom log file
   const char *suite = getenv("CK_RUN_SUITE");
   if (suite && strlen(suite) > 0) {
-    char logname[128];
-    snprintf(logname, sizeof(logname), "../%s.log", suite);
+    char logname[FILENAME_SIZE];
+    snprintf(logname, sizeof(logname), "./%s.log", suite);
     srunner_set_log(sr, logname);
   } else {
-    srunner_set_log(sr, "../test.log");
+    srunner_set_log(sr, "./test.log");
   }
 
   srunner_run_all(sr, CK_NORMAL);
