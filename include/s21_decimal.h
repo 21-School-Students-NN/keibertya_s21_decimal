@@ -160,8 +160,8 @@ int s21_is_not_equal(s21_decimal value_1, s21_decimal value_2);
  * @param src Integer to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 11 2025
  */
 int s21_from_int_to_decimal(int src, s21_decimal *dst);
 
