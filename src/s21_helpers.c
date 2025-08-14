@@ -33,3 +33,13 @@ int _set_sign(s21_decimal *dec, const meta_t sign) {
 void _init_decimal_zero(s21_decimal *dec) {
   memset(dec, 0, sizeof(s21_decimal));
 }
+
+meta_t _get_bit(s21_decimal *dec, unsigned order) {
+  if (order < 32) {
+    return (meta_t)((dec->bits[0] >> order) & 1);
+  } else if (order < 64) {
+    return (meta_t)((dec->bits[1] >> (order - 32)) & 1);
+  } else {
+    return (meta_t)((dec->bits[2] >> (order - 64)) & 1);
+  }
+}

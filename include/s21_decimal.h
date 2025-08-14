@@ -170,8 +170,8 @@ int s21_from_int_to_decimal(int src, s21_decimal *dst);
  * @param src Float to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 13 2025
  */
 int s21_from_float_to_decimal(float src, s21_decimal *dst);
 
@@ -180,8 +180,8 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst);
  * @param src Decimal to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 14 2025
  */
 int s21_from_decimal_to_int(s21_decimal src, int *dst);
 
@@ -190,8 +190,8 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst);
  * @param src Decimal to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 14 2025
  */
 int s21_from_decimal_to_float(s21_decimal src, float *dst);
 

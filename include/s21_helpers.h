@@ -59,4 +59,14 @@ int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
  */
 void _init_decimal_zero(s21_decimal *dec) __attribute__((nonnull));
 
+/**
+ * @brief Gets single bit from mantissa
+ * @param dec Pointer to the decimal number to initialize
+ * @param order order (from 0 to 95)
+ * @return bit value (0 for positive, 1 for negative) as `meta_t`
+ * @author Anton Gashturi (bernieer)
+ * @date 14.08.2025
+ */
+meta_t _get_bit(s21_decimal *dec, unsigned order) __attribute__((nonnull));
+
 #endif  // S21_HELPERS_H
