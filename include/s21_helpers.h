@@ -53,19 +53,6 @@ meta_t _get_sign(const s21_decimal *dec) __attribute__((nonnull));
  */
 int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
 
-#if 0
-/**
- * @brief Normalize `dec` by change scale
- * @details Multiply the `dec` by `10^diff` and change scale by adding `diff`
- * @param dec Pointer to the decimal number to modify (can't be `NULL`)
- * @param diff The difference to be normalized
- * @return `S21_SUCCESS` on success, `S21_ERROR` on error
- * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
- * @date 10.08.2025
- */
-int _normalize_to_upper(s21_decimal *dec, int diff) __attribute__((nonnull));
-#endif
-
 /**
  * @brief Initialize decimal with zero
  * @param dec Pointer to the decimal number to initialize
