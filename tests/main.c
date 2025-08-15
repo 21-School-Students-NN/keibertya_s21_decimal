@@ -10,6 +10,7 @@ int main(void) {
   SRunner *sr = srunner_create(s21_helpers_suite());
 
   //  TODO(all): add after comment your suits...
+  srunner_add_suite(sr, s21_add_suite());
 
   //  Check for CK_RUN_SUITE and set a custom log file
   const char *suite = getenv("CK_RUN_SUITE");
