@@ -8,6 +8,7 @@
 int main(void) {
   int number_failed;
   SRunner *sr = srunner_create(s21_helpers_suite());
+  srunner_add_suite(sr, s21_converters_suite());
 
   //  TODO(all): add after comment your suits...
 
