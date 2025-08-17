@@ -105,25 +105,27 @@ START_TEST(test_add_different_scales) {
 END_TEST
 
 START_TEST(test_add_bank_rounding) {
-  s21_decimal a = {{0xFFFFFFFE, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000}};  // 2^96 - 2
-  s21_decimal b = {{51, 0, 0, 0x00020000}};   // 0.51
+  s21_decimal a = {
+      {0xFFFFFFFE, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000}};  // 2^96 - 2
+  s21_decimal b = {{51, 0, 0, 0x00020000}};               // 0.51
   s21_decimal result;
 
-  ck_assert_msg(s21_add(a, b, &result) == S21_SUCCESS,
-                "s21_add returned error on add with diff scale 2^96 - 2 + 0.51");
+  ck_assert_msg(
+      s21_add(a, b, &result) == S21_SUCCESS,
+      "s21_add returned error on add with diff scale 2^96 - 2 + 0.51");
 
-  for (int i = 0; i < 2; ++i)
-    ck_assert_uint_eq(result.bits[i], 0xFFFFFFFF);
+  for (int i = 0; i < 2; ++i) ck_assert_uint_eq(result.bits[i], 0xFFFFFFFF);
   ck_assert_uint_eq(_get_scale(&result), 0);
 }
 END_TEST
 
-/** 
+/**
  * test-case where we add to real big number small one, with different scale
  * programm should use `bancking rounding` for the answer
- * 
- * good if we can find way to create such use-case: 
- * 2^96 - 1 (full up mantisa) with scale 10 + some number = full up mantisa with scale 8
+ *
+ * good if we can find way to create such use-case:
+ * 2^96 - 1 (full up mantisa) with scale 10 + some number = full up mantisa with
+ * scale 8
  */
 #if 0
 START_TEST(test_add_bank_rounding_1) {
