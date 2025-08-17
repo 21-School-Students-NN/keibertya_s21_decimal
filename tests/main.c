@@ -11,6 +11,7 @@ int main(void) {
 
   //  TODO(all): add after comment your suits...
   srunner_add_suite(sr, s21_add_suite());
+  srunner_add_suite(sr, s21_div_suite());
 
   //  Check for CK_RUN_SUITE and set a custom log file
   const char *suite = getenv("CK_RUN_SUITE");
