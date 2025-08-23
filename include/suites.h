@@ -2,5 +2,7 @@
 #define SUITES_H 1
 
 #include <check.h>
+#include <stdio.h>
+#include <stdlib.h>
 Suite *s21_add_sub_suite(void);
 #endif /* SUITES_H */

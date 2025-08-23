@@ -22,7 +22,7 @@ uByte devide_96_by_10(s21_decimal *num) {
 
         if (round_up) {
             uInt temp_96[3] = {quotient[0], quotient[1], quotient[2]};
-            if (increment_96(quotient)) { 
+            if (increment_96(quotient)) {
                 error_fl = S21_INFINITY;
             } else{
                 tmp_num.bits[0] = temp_96[0];
@@ -38,15 +38,15 @@ uByte devide_96_by_10(s21_decimal *num) {
 }*/
 
 /*uByte iterative_scale_down(s21_decimal *num, uInt carry_in) {
-    uInt current_mantissa[4] = {num->bits[0], num->bits[1], num->bits[2], carry_in};
-    int current_scale = GET_SCALE(*num);
+    uInt current_mantissa[4] = {num->bits[0], num->bits[1], num->bits[2],
+carry_in}; int current_scale = GET_SCALE(*num);
 
     while (current_mantissa[3] > 0) {
-        
+
         if (current_scale <= 0) {
-            return S21_INFINITY; 
+            return S21_INFINITY;
         }
-        
+
         current_scale--;
 
         uInt quotient[4] = {0, 0, 0, 0};
@@ -65,14 +65,14 @@ uByte devide_96_by_10(s21_decimal *num) {
 
         if (round_up) {
             uInt temp_96[3] = {quotient[0], quotient[1], quotient[2]};
-            if (increment_96(temp_96)) { 
-                quotient[3]++; 
+            if (increment_96(temp_96)) {
+                quotient[3]++;
             }
             quotient[0] = temp_96[0];
             quotient[1] = temp_96[1];
             quotient[2] = temp_96[2];
         }
-        
+
         current_mantissa[0] = quotient[0];
         current_mantissa[1] = quotient[1];
         current_mantissa[2] = quotient[2];
