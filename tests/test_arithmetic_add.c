@@ -70,7 +70,7 @@ START_TEST(test_add_underflow) {
   s21_decimal min_val = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x80000000}};
   s21_decimal one = {{1, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(min_val, one, &result);
+  int error = s21_sub(min_val, one, &result);
 
   ck_assert_int_eq(error, 2);  // Ошибка нижнего переполнения
 }
@@ -81,7 +81,7 @@ START_TEST(test_sub_positive_basic) {
   s21_decimal a = {{10, 0, 0, 0}};
   s21_decimal b = {{3, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = s21_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 7);
@@ -94,7 +94,7 @@ START_TEST(test_sub_negative_result) {
   s21_decimal a = {{3, 0, 0, 0}};
   s21_decimal b = {{10, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = s21_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 7);
@@ -107,7 +107,7 @@ START_TEST(test_sub_zero) {
   s21_decimal a = {{100, 0, 0, 0}};
   s21_decimal b = {{0, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = s21_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 100);
@@ -120,7 +120,7 @@ START_TEST(test_sub_equal_numbers) {
   s21_decimal a = {{42, 0, 0, 0}};
   s21_decimal b = {{42, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = s21_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 0);
@@ -155,7 +155,7 @@ END_TEST
 // }
 // END_TEST
 
-// NULL pointer test
+// //NULL pointer test
 // START_TEST(test_add_null_pointer) {
 //     s21_decimal a = {{1, 0, 0, 0}};
 //     s21_decimal b = {{1, 0, 0, 0}};

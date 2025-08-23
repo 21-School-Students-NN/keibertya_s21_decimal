@@ -29,11 +29,21 @@
     }                                  \
   } while (0)
 
-#define GET_SCALE(d) (((d).bits[3] >> 16) & 0xFF)
-#define SET_SCALE(d_ptr, scale)                          \
-  do {                                                   \
-    ((d_ptr)->bits[3]) &= ~(0xFFU << 16);                \
-    (d_ptr)->bits[3] |= (((uInt)(scale) & 0xFFU) << 16); \
+// #define GET_SCALE(d) (((d).bits[3] >> 16) & 0xFF)
+// #define SET_SCALE(d_ptr, scale)
+//   do {
+//     ((d_ptr)->bits[3]) &= ~(0xFFU << 16);
+//     (d_ptr)->bits[3] |= (((uInt)(scale) & 0xFFU) << 16);
+//   } while (0)
+
+#define GET_SCALE(d) (((uint32_t)(d).bits[3] >> 16) & 0xFFu)
+
+#define SET_SCALE(d_ptr, scale)                  \
+  do {                                           \
+    uint32_t _b3 = (uint32_t)((d_ptr)->bits[3]); \
+    _b3 &= ~(0xFFu << 16);                       \
+    _b3 |= (((uint32_t)(scale) & 0xFFu) << 16);  \
+    (d_ptr)->bits[3] = (int)_b3;                 \
   } while (0)
 
 typedef struct {
@@ -41,5 +51,6 @@ typedef struct {
 } s21_decimal;
 
 int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
+int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
 #endif

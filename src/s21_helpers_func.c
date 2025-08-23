@@ -1,4 +1,6 @@
 #include "../include/s21_helpers_func.h"
+
+#include <stdio.h>
 // =================================================================================
 //                    ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (НИЗКИЙ УРОВЕНЬ)
 // =================================================================================
@@ -56,11 +58,11 @@ uByte increment_96(s21_decimal *num) {
       if ((uInt)(summ >> 32)) error_fl = 1;
     }
   }
-  if (!error_fl) {
-    num->bits[0] = tmp_num[0];
-    num->bits[1] = tmp_num[1];
-    num->bits[2] = tmp_num[2];
-  }
+  // if (!error_fl) {
+  num->bits[0] = tmp_num[0];
+  num->bits[1] = tmp_num[1];
+  num->bits[2] = tmp_num[2];
+  //}
   return error_fl;
 }
 
@@ -142,12 +144,15 @@ int normalizing(s21_decimal *num1, s21_decimal *num2) {
     ptr_low_scale = num2;
     ptr_high_scale = num1;
   }
-
   while (GET_SCALE(*ptr_low_scale) != GET_SCALE(*ptr_high_scale)) {
     if (!multiply_96_mantissa(ptr_low_scale)) {
       SET_SCALE(ptr_low_scale, GET_SCALE(*ptr_low_scale) + 1);
     } else {
       if (GET_SCALE(*ptr_high_scale) == 0) {
+        return GET_SIGN(*ptr_low_scale) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
+      }
+      if (ptr_high_scale->bits[0] == 0 && ptr_high_scale->bits[1] == 0 &&
+          ptr_high_scale->bits[2] == 0) {
         return GET_SIGN(*ptr_low_scale) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
       }
       uInt carry_zero = 0;

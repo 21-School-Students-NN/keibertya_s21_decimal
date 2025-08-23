@@ -1,10 +1,11 @@
-#include "../include/s21_helpers_func.h"
+#include <stdio.h>
 
+#include "../include/s21_helpers_func.h"
 // =================================================================================
 //                            ОСНОВНАЯ ФУНКЦИЯ СЛОЖЕНИЯ
 // =================================================================================
 
-int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   if (!result) return 1;  // Защита от NULL указателя
   *result = (s21_decimal){{0, 0, 0, 0}};
 
@@ -55,14 +56,14 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
       ptr_big = &norm_val2;
       ptr_small = &norm_val1;
     }
+    s21_decimal small_copy = *ptr_small;
+    small_copy.bits[0] = ~small_copy.bits[0];
+    small_copy.bits[1] = ~small_copy.bits[1];
+    small_copy.bits[2] = ~small_copy.bits[2];
 
-    ptr_small->bits[0] = ~ptr_small->bits[0];
-    ptr_small->bits[1] = ~ptr_small->bits[1];
-    ptr_small->bits[2] = ~ptr_small->bits[2];
+    increment_96(&small_copy);  // Используем вашу функцию
 
-    increment_96(ptr_small);  // Используем вашу функцию
-
-    add_96_mantissas(*ptr_big, *ptr_small, result);
+    add_96_mantissas(*ptr_big, small_copy, result);
 
     SET_SIGN(result, GET_SIGN(*ptr_big));
     SET_SCALE(result, GET_SCALE(norm_val1));
@@ -74,4 +75,21 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   }
 
   return S21_SUCCESS;
+}
+
+// =================================================================================
+//                            ОСНОВНАЯ ФУНКЦИЯ ВЫЧИТАНИЯ
+// =================================================================================
+Int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+  // Чтобы вычесть value_2, мы инвертируем его знак и прибавляем.
+  // A - B  <=>  A + (-B)
+
+  // Инвертируем знаковый бит у value_2.
+  // Для этого можно использовать операцию XOR с маской знакового бита,
+  // или, что более наглядно с вашими макросами:
+  SET_SIGN(&value_2, !GET_SIGN(value_2));
+
+  // Вызываем вашу функцию сложения, которая сама определит,
+  // что знаки разные, и выполнит вычитание.
+  return s21_add(value_1, value_2, result);
 }
