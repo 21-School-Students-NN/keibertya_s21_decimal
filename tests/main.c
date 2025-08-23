@@ -1,4 +1,4 @@
-#include "./suites.h"
+#include "../include/suites.h"
 #include <stdlib.h>
 
 int main(void) {

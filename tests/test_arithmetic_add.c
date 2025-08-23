@@ -1,5 +1,5 @@
-#include "./suites.h"
-#include "../src/s21_decimal.h"
+#include "../include/suites.h"
+#include "../include/s21_decimal.h"
 
 // Базовое сложение положительных чисел
 START_TEST(test_add_positive_basic) {
