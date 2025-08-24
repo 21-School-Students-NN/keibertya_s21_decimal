@@ -218,7 +218,7 @@ START_TEST(test_round_negative_greater_half) {
 END_TEST
 
 Suite *s21_round_suite(void) {
-  Suite *s = suite_create("s21_round");
+  Suite *s = suite_create("round");
   TCase *tc_core = tcase_create("Core");
 
   tcase_add_test(tc_core, test_round_positive_less_half);
