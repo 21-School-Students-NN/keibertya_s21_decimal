@@ -5,5 +5,6 @@
 
 // TODO: don't forget to add new suits here...
 Suite *s21_helpers_suite(void);
+Suite *s21_round_suite(void);
 
 #endif /* S21_SUITES_H */
