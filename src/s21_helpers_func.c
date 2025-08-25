@@ -10,10 +10,11 @@
  * @return >0 если |value_1|>|value_2|, <0 если |value_1|<|value_2|, 0 если
  * равны.
  */
-int compare_mantissas_96(const s21_decimal value_1, const s21_decimal value_2) {
+Int compare_mantissas_96(const s21_decimal value_1, const s21_decimal value_2) {
   for (int i = 2; i >= 0; i--) {
-    if (value_1.bits[i] > value_2.bits[i]) return 1;
-    if (value_1.bits[i] < value_2.bits[i]) return -1;
+    // --- ИСПРАВЛЕНИЕ: Сравниваем как беззнаковые числа ---
+    if ((uInt)value_1.bits[i] > (uInt)value_2.bits[i]) return 1;
+    if ((uInt)value_1.bits[i] < (uInt)value_2.bits[i]) return -1;
   }
   return 0;
 }
@@ -135,7 +136,7 @@ uInt divide_and_round(s21_decimal *num, uInt carry_in) {
  *        Изменяет числа "по месту".
  * @return Код ошибки (0 - успех, 1 или 2 - ошибка).
  */
-int normalizing(s21_decimal *num1, s21_decimal *num2) {
+uInt normalizing(s21_decimal *num1, s21_decimal *num2) {
   s21_decimal *ptr_low_scale, *ptr_high_scale;
   if (GET_SCALE(*num1) < GET_SCALE(*num2)) {
     ptr_low_scale = num1;
@@ -160,5 +161,112 @@ int normalizing(s21_decimal *num1, s21_decimal *num2) {
       SET_SCALE(ptr_high_scale, GET_SCALE(*ptr_high_scale) - 1);
     }
   }
+  return S21_SUCCESS;
+}
+
+/**
+ * @brief Выполняет умножение 96-битных мантисс "в столбик".
+ *
+ * @param value_1 Первый множитель.
+ * @param value_2 Второй множитель.
+ * @param temp_result 192-битный (6 x uInt) массив для результата.
+ */
+void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
+                        uInt temp_result[6]) {
+  // Алгоритм имитирует умножение чисел в столбик, как в школе.
+  // Мы умножаем каждую 32-битную "цифру" (bits[i]) первого числа
+  // на каждую "цифру" второго (bits[j]).
+  for (int i = 0; i < 3; i++) {
+    uLong carry = 0;  // Перенос внутри одного цикла (при умножении на одну
+                      // "цифру" value_2)
+    for (int j = 0; j < 3; j++) {
+      // Позиция, в которую мы будем записывать результат.
+      int pos = i + j;
+
+      // Умножаем две 32-битные "цифры". Результат будет 64-битным.
+      // Это самый важный шаг: мы используем uLong, чтобы избежать потери
+      // данных.
+      uLong product = (uLong)value_1.bits[i] * value_2.bits[j];
+
+      // Теперь добавляем это произведение к нашему промежуточному 192-битному
+      // результату. Складываем с тем, что уже лежит в temp_result[pos], и с
+      // переносом от предыдущей итерации.
+      uLong sum = (uLong)temp_result[pos] + product + carry;
+
+      // Записываем младшие 32 бита суммы в текущую позицию.
+      temp_result[pos] = sum & 0xFFFFFFFF;  // Эквивалентно sum % (2^32)
+
+      // Сохраняем старшие 32 бита как перенос для следующей итерации.
+      carry = sum >> 32;  // Эквивалентно sum / (2^32)
+    }
+
+    // Если после умножения на все "цифры" value_2 остался перенос,
+    // добавляем его в следующую позицию.
+    if (carry > 0) {
+      temp_result[i + 3] += carry;
+    }
+  }
+}
+
+/**
+ * @brief Нормализует 192-битный результат, чтобы он поместился в 96 бит.
+ *
+ * Функция делит 192-битное число на 10, уменьшая масштаб, пока оно не
+ * поместится в 96 бит или пока масштаб не станет слишком маленьким. Применяет
+ * банковское округление.
+ *
+ * @param temp_result 192-битный (6 x uInt) исходный результат.
+ * @param scale Начальный масштаб.
+ * @param sign Знак результата.
+ * @param result Указатель на s21_decimal для записи финального значения.
+ * @return int Код ошибки (0 - OK, 1 или 2 - переполнение).
+ */
+uInt normalize_and_fit(uint32_t temp_result[6], int scale, int sign,
+                       s21_decimal *result) {
+  uint32_t last_digit = 0;
+
+  while ((temp_result[3] || temp_result[4] || temp_result[5] || scale > 28) &&
+         scale > 0) {
+    uint64_t remainder = 0;
+    for (int i = 5; i >= 0; i--) {
+      uint64_t dividend = (remainder << 32) | temp_result[i];
+      temp_result[i] = dividend / 10;
+      remainder = dividend % 10;
+    }
+    last_digit = remainder;
+    scale--;
+  }
+
+  if (temp_result[3] || temp_result[4] || temp_result[5]) {
+    return sign ? S21_NEGATIVE_INFINITY : S21_INFINITY;
+  }
+
+  // --- ИСПРАВЛЕНИЕ: Округляем temp_result, а не result ---
+  if (last_digit > 5) {
+    // Прибавляем 1 к 96-битной мантиссе в temp_result
+    for (int i = 0; i < 3; i++) {
+      uint64_t sum = (uint64_t)temp_result[i] + 1;
+      temp_result[i] = sum & 0xFFFFFFFF;
+      if ((sum >> 32) == 0) break;
+    }
+  } else if (last_digit == 5) {
+    if ((temp_result[0] & 1) != 0) {  // Проверяем последнюю цифру в temp_result
+      for (int i = 0; i < 3; i++) {
+        uint64_t sum = (uint64_t)temp_result[i] + 1;
+        temp_result[i] = sum & 0xFFFFFFFF;
+        if ((sum >> 32) == 0) break;
+      }
+    }
+  }
+  // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+
+  // Записываем финальный результат.
+  result->bits[0] = temp_result[0];
+  result->bits[1] = temp_result[1];
+  result->bits[2] = temp_result[2];
+  result->bits[3] = 0;
+  SET_SIGN(result, sign);
+  SET_SCALE(result, scale);
+
   return S21_SUCCESS;
 }

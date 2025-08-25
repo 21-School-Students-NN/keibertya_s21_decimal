@@ -4,6 +4,7 @@
         "stdio.h": "c",
         "s21_decimal.h": "c",
         "s21_helpers_func.h": "c",
-        "check.h": "c"
+        "check.h": "c",
+        "string.h": "c"
     }
 }
