@@ -8,5 +8,6 @@ Suite *s21_helpers_suite(void);
 Suite *s21_add_suite(void);
 Suite *s21_sub_suite(void);
 Suite *s21_mul_suite(void);
+Suite *s21_div_suite(void);
 
 #endif /* S21_SUITES_H */
