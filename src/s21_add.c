@@ -17,8 +17,18 @@ static inline meta_t _add_with_carry(meta_t carry_in, uint32_t x, uint32_t y,
   return (sum >> 32) & 1;
 }
 
-static inline int32_t _multiply_collomn(uint32_t carry_in, uint32_t x,
-                                        uint32_t y, uint32_t* result) {
+/**
+ * @brief Multiply by collomn with coverage data
+ * @param carry_in Number to carry
+ * @param x first addendum
+ * @param y second addendum
+ * @param result pointer to store the result
+ * @return int32_t carry data - does the myltiply overflow
+ * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
+ * @date 15.08.2025
+ */
+int32_t _multiply_collomn(uint32_t carry_in, uint32_t x, uint32_t y,
+                              uint32_t* result) {
   uint64_t product = (uint64_t)x * y + carry_in;
   *result = (uint32_t)product;
   return product >> 32;
@@ -54,7 +64,7 @@ static void _swap(meta_t* a, meta_t* b) {
   }
 }
 
-int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
+int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   _init_decimal_zero(result);
 
   meta_t max_scale = _get_scale(&value_1);
