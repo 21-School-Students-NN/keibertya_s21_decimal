@@ -74,23 +74,24 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   meta_t diff = max_scale - min_scale;
 
   uint32_t carry = 0;
-#if 0  // wait for `s21_sub` implemantation
+  // Delegate subtraction to s21_sub if signs differ (no subtraction here)
   if (_get_sign(&value_1) != _get_sign(&value_2))
-    s21_sub(value_1, value_2, result);
-#endif
+    return s21_sub(value_1, value_2, result);
 
-  // try to normolize | handle `diff == 0` into `_normalize_to_upper()`
-  if (_normalize_to_upper(
-          (min_scale == _get_scale(&value_1)) ? &value_1 : &value_2, diff)) {
-    ;  // place for banking rounding
-  } else {
-    for (int i = 0; i < 3; ++i)
-      carry = _add_with_carry(carry, value_1.bits[i], value_2.bits[i],
-                              &result->bits[i]);
+  // Normalize scales using meet method
+  if (_normalize_scales_meet(
+          (_get_scale(&value_1) <= _get_scale(&value_2)) ? &value_1 : &value_2,
+          (_get_scale(&value_1) > _get_scale(&value_2)) ? &value_1 : &value_2))
+    return _get_sign(&value_1) ? S21_TOO_SMALL : S21_TOO_LARGE;
 
-    _set_sign(result, _get_sign(&value_1));
-    _set_scale(result, max_scale);
-  }
+  // Add mantissas
+  for (int i = 0; i < 3; ++i)
+    carry = _add_with_carry(carry, (uint32_t)value_1.bits[i],
+                            (uint32_t)value_2.bits[i],
+                            (uint32_t *)&result->bits[i]);
+
+  _set_sign(result, _get_sign(&value_1));
+  _set_scale(result, _get_scale(&value_1));
 
   // TODO(trelawnm): find more convenient way to return
   if (carry) {

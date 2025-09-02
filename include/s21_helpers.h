@@ -62,4 +62,27 @@ int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
  */
 void _init_decimal_zero(s21_decimal *dec) __attribute__((nonnull));
 
+//======================================================================
+//  Mantissa helpers (96-bit) and normalization
+//======================================================================
+
+int _compare_mantissas_96(const s21_decimal *a, const s21_decimal *b)
+    __attribute__((nonnull));
+
+uint32_t _add_mantissas_96(const s21_decimal *a, const s21_decimal *b,
+                           s21_decimal *sum) __attribute__((nonnull));
+
+int _multiply_mantissas_96(const s21_decimal *a, const s21_decimal *b,
+                           uint32_t out192[6]) __attribute__((nonnull));
+
+uint32_t _divide_by_10_with_bank_round(s21_decimal *num, uint32_t carry_in)
+    __attribute__((nonnull));
+
+int _normalize_scales_meet(s21_decimal *lower_scale, s21_decimal *higher_scale)
+    __attribute__((nonnull));
+
+int _normalize_and_fit_192_to_96(uint32_t temp192[6], meta_t *scale,
+                                 meta_t sign, s21_decimal *result)
+    __attribute__((nonnull));
+
 #endif  // S21_HELPERS_H
