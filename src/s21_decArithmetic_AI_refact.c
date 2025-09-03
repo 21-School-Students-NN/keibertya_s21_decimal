@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../include/murk_helpers.h"
+#include "../include/s21_helpers.h"
 // =================================================================================
 //                            ОСНОВНАЯ ФУНКЦИЯ СЛОЖЕНИЯ
 // =================================================================================
@@ -10,8 +11,8 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   *result = (s21_decimal){{0, 0, 0, 0}};
 
   // --- БЫСТРЫЙ ПУТЬ ---
-  if (GET_SCALE(value_1) == GET_SCALE(value_2) &&
-      GET_SIGN(value_1) == GET_SIGN(value_2)) {
+  if (_get_scale(&value_1) == _get_scale(&value_2) &&
+      _get_sign(&value_1) == _get_sign(&value_2)) {
     uInt carry = add_96_mantissas(value_1, value_2, result);
     if (carry == 0) {
       result->bits[3] = value_1.bits[3];
@@ -27,14 +28,14 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   int norm_error = normalizing(&norm_val1, &norm_val2);
   if (norm_error) return norm_error;
 
-  if (GET_SIGN(value_1) == GET_SIGN(value_2)) {  // СЛОЖЕНИЕ
+  if (_get_sign(&value_1) == _get_sign(&value_2)) {  // СЛОЖЕНИЕ
     s21_decimal result_bits = {{0, 0, 0, 0}};
     uInt carry_out = add_96_mantissas(norm_val1, norm_val2, &result_bits);
-    int final_scale = GET_SCALE(norm_val1);
+    int final_scale = _get_scale(&norm_val1);
 
     while (carry_out > 0) {
       if (final_scale <= 0) {
-        return GET_SIGN(value_1) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
+        return _get_sign(&value_1) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
       }
       final_scale--;
       carry_out = divide_and_round(&result_bits, carry_out);
@@ -43,8 +44,8 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     result->bits[0] = result_bits.bits[0];
     result->bits[1] = result_bits.bits[1];
     result->bits[2] = result_bits.bits[2];
-    SET_SIGN(result, GET_SIGN(value_1));
-    SET_SCALE(result, final_scale);
+    _set_sign(result, _get_sign(&value_1));
+    _set_scale(result, final_scale);
 
   } else {  // ВЫЧИТАНИЕ (когда знаки разные)
     const s21_decimal *ptr_big, *ptr_small;
@@ -70,14 +71,14 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     }
 
     // Устанавливаем знак результата (он равен знаку большего по модулю числа)
-    SET_SIGN(result, GET_SIGN(*ptr_big));
+    _set_sign(result, _get_sign(ptr_big));
     // Устанавливаем масштаб (он уже нормализован)
-    SET_SCALE(result, GET_SCALE(norm_val1));
+    _set_scale(result, _get_scale(&norm_val1));
   }
 
   if (result->bits[0] == 0 && result->bits[1] == 0 && result->bits[2] == 0) {
-    SET_SIGN(result, 0);
-    SET_SCALE(result, 0);
+    _set_sign(result, 0);
+    _set_scale(result, 0);
   }
 
   return S21_SUCCESS;
@@ -93,7 +94,7 @@ Int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   // Инвертируем знаковый бит у value_2.
   // Для этого можно использовать операцию XOR с маской знакового бита,
   // или, что более наглядно с вашими макросами:
-  SET_SIGN(&value_2, !GET_SIGN(value_2));
+  _set_sign(&value_2, !_get_sign(&value_2));
 
   // Вызываем вашу функцию сложения, которая сама определит,
   // что знаки разные, и выполнит вычитание.
@@ -131,8 +132,8 @@ uInt s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   }
 
   // ШАГ 2: Вычисление метаданных.
-  int result_sign = GET_SIGN(value_1) ^ GET_SIGN(value_2);
-  int result_scale = GET_SCALE(value_1) + GET_SCALE(value_2);
+  int result_sign = _get_sign(&value_1) ^ _get_sign(&value_2);
+  int result_scale = _get_scale(&value_1) + _get_scale(&value_2);
 
   // ШАГ 3: Умножение мантисс.
   uint32_t temp_result[6] = {0};
@@ -148,8 +149,8 @@ uInt s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     result->bits[2] = temp_result[2];
 
     // `result->bits[3]` уже 0, поэтому макросы отработают корректно.
-    SET_SIGN(result, result_sign);
-    SET_SCALE(result, result_scale);
+    _set_sign(result, result_sign);
+    _set_scale(result, result_scale);
 
     return S21_SUCCESS;
   } else {

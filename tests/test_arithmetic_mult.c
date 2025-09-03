@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "../include/murk_helpers.h"
+#include "../include/s21_helpers.h"
 #include "../include/s21_suites.h"
 // --- Вспомогательные функции для тестов ---
 
@@ -10,8 +11,8 @@ void s21_decimal_from_int(int value, int sign, int scale, s21_decimal *result) {
   for (int i = 0; i < 4; i++) result->bits[i] = 0;
   if (value < 0) value = -value;
   result->bits[0] = value;
-  if (sign) SET_SIGN(result, 1);
-  if (scale) SET_SCALE(result, scale);
+  if (sign) _set_sign(result, 1);
+  if (scale) _set_scale(result, scale);
 }
 
 // Сравнивает два s21_decimal. Возвращает 1 если равны, 0 если нет.
@@ -158,7 +159,7 @@ START_TEST(test_mul_overflow_and_clean_normalization) {
   val1.bits[1] = 0xFFFFFFFF;
   val1.bits[2] = 0xFFFFFFFF;
   // Теперь val1.bits[3] равен 0, и макрос может его безопасно читать
-  SET_SCALE(&val1, 28);
+  _set_scale(&val1, 28);
 
   // val2 = 1.0
   s21_decimal_from_int(10, 0, 1, &val2);

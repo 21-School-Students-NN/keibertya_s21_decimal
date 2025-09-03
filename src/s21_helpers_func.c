@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../include/murk_helpers.h"
+#include "../include/s21_helpers.h"
 // =================================================================================
 //                    ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (НИЗКИЙ УРОВЕНЬ)
 // =================================================================================
@@ -138,27 +139,27 @@ uInt divide_and_round(s21_decimal *num, uInt carry_in) {
  */
 uInt normalizing(s21_decimal *num1, s21_decimal *num2) {
   s21_decimal *ptr_low_scale, *ptr_high_scale;
-  if (GET_SCALE(*num1) < GET_SCALE(*num2)) {
+  if (_get_scale(num1) < _get_scale(num2)) {
     ptr_low_scale = num1;
     ptr_high_scale = num2;
   } else {
     ptr_low_scale = num2;
     ptr_high_scale = num1;
   }
-  while (GET_SCALE(*ptr_low_scale) != GET_SCALE(*ptr_high_scale)) {
+  while (_get_scale(ptr_low_scale) != _get_scale(ptr_high_scale)) {
     if (!multiply_96_mantissa(ptr_low_scale)) {
-      SET_SCALE(ptr_low_scale, GET_SCALE(*ptr_low_scale) + 1);
+      _set_scale(ptr_low_scale, _get_scale(ptr_low_scale) + 1);
     } else {
-      if (GET_SCALE(*ptr_high_scale) == 0) {
-        return GET_SIGN(*ptr_low_scale) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
+      if (_get_scale(ptr_high_scale) == 0) {
+        return _get_sign(ptr_low_scale) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
       }
       if (ptr_high_scale->bits[0] == 0 && ptr_high_scale->bits[1] == 0 &&
           ptr_high_scale->bits[2] == 0) {
-        return GET_SIGN(*ptr_low_scale) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
+        return _get_sign(ptr_low_scale) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
       }
       uInt carry_zero = 0;
       divide_and_round(ptr_high_scale, carry_zero);
-      SET_SCALE(ptr_high_scale, GET_SCALE(*ptr_high_scale) - 1);
+      _set_scale(ptr_high_scale, _get_scale(ptr_high_scale) - 1);
     }
   }
   return S21_SUCCESS;
@@ -265,8 +266,8 @@ uInt normalize_and_fit(uint32_t temp_result[6], int scale, int sign,
   result->bits[1] = temp_result[1];
   result->bits[2] = temp_result[2];
   result->bits[3] = 0;
-  SET_SIGN(result, sign);
-  SET_SCALE(result, scale);
+  _set_sign(result, sign);
+  _set_scale(result, scale);
 
   return S21_SUCCESS;
 }
