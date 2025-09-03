@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/murk_helpers.h"
 #include "../include/s21_helpers.h"
 #include "../include/s21_suites.h"
 // --- Вспомогательные функции для тестов ---

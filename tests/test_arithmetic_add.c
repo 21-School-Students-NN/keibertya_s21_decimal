@@ -1,4 +1,4 @@
-#include "../include/murk_helpers.h"
+#include "../include/s21_helpers.h"
 #include "../include/s21_suites.h"
 // Базовое сложение положительных чисел
 START_TEST(test_add_positive_basic) {

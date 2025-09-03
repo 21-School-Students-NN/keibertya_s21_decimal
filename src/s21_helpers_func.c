@@ -1,17 +1,12 @@
 #include <stdio.h>
 
-#include "../include/murk_helpers.h"
 #include "../include/s21_helpers.h"
 // =================================================================================
 //                    ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (НИЗКИЙ УРОВЕНЬ)
 // =================================================================================
 
-/**
- * @brief Сравнивает абсолютные величины (мантиссы) двух чисел.
- * @return >0 если |value_1|>|value_2|, <0 если |value_1|<|value_2|, 0 если
- * равны.
- */
-int32_t compare_mantissas_96(const s21_decimal value_1, const s21_decimal value_2) {
+int32_t compare_mantissas_96(const s21_decimal value_1,
+                             const s21_decimal value_2) {
   for (int i = 2; i >= 0; i--) {
     // --- ИСПРАВЛЕНИЕ: Сравниваем как беззнаковые числа ---
     if ((uint32_t)value_1.bits[i] > (uint32_t)value_2.bits[i]) return 1;
@@ -20,15 +15,8 @@ int32_t compare_mantissas_96(const s21_decimal value_1, const s21_decimal value_
   return 0;
 }
 
-/**
- * @brief Складывает две 96-битные мантиссы.
- * @param a         Мантисса первого числа.
- * @param b         Мантисса второго числа.
- * @param result    Указатель для записи 96-битного результата.
- * @return uint32_t Возвращает 32-битный перенос (carry_out).
- */
 uint32_t add_96_mantissas(const s21_decimal num1, const s21_decimal num2,
-                      s21_decimal *result) {
+                          s21_decimal *result) {
   uint64_t sum = (uint64_t)num1.bits[0] + num2.bits[0];
   result->bits[0] = (uint32_t)sum;
   sum = (uint64_t)num1.bits[1] + num2.bits[1] + (sum >> 32);
@@ -38,11 +26,6 @@ uint32_t add_96_mantissas(const s21_decimal num1, const s21_decimal num2,
   return (uint32_t)(sum >> 32);
 }
 
-/**
- * @brief Увеличивает мантиссу s21_decimal на 1. (Ваша версия)
- * @param num Указатель на s21_decimal для инкремента.
- * @return 1 при переполнении, 0 при успехе.
- */
 uint8_t increment_96(s21_decimal *num) {
   uint32_t tmp_num[3];
   tmp_num[0] = num->bits[0];
@@ -68,11 +51,6 @@ uint8_t increment_96(s21_decimal *num) {
   return error_fl;
 }
 
-/**
- * @brief Умножает 96-битную мантиссу на 10.
- * @param bits Мантисса для умножения (будет изменена).
- * @return true при переполнении, иначе false.
- */
 int multiply_96_mantissa(s21_decimal *num) {
   uint32_t x[3] = {num->bits[0], num->bits[1], num->bits[2]};
   // x*2
@@ -99,14 +77,9 @@ int multiply_96_mantissa(s21_decimal *num) {
   return add_96_mantissas(tmp_dec_x2, tmp_dec_x8, num) > 0;
 }
 
-/**
- * @brief Делит 97+ битное число на 10 с банковским округлением.
- * @param bits      Мантисса (будет изменена).
- * @param carry_in  Входящий перенос (старшие 32 бита числа).
- * @return uint32_t Возвращает новый перенос (0, если результат уместился в 96 бит).
- */
 uint32_t divide_and_round(s21_decimal *num, uint32_t carry_in) {
-  const uint32_t dividend[4] = {num->bits[0], num->bits[1], num->bits[2], carry_in};
+  const uint32_t dividend[4] = {num->bits[0], num->bits[1], num->bits[2],
+                                carry_in};
   uint32_t quotient[4] = {0, 0, 0, 0};
   uint64_t temp_carry = 0;
 
@@ -132,11 +105,6 @@ uint32_t divide_and_round(s21_decimal *num, uint32_t carry_in) {
   return quotient[3];
 }
 
-/**
- * @brief Нормализует два числа к общей степени "встречным" методом.
- *        Изменяет числа "по месту".
- * @return Код ошибки (0 - успех, 1 или 2 - ошибка).
- */
 uint32_t normalizing(s21_decimal *num1, s21_decimal *num2) {
   s21_decimal *ptr_low_scale, *ptr_high_scale;
   if (_get_scale(num1) < _get_scale(num2)) {
@@ -165,13 +133,6 @@ uint32_t normalizing(s21_decimal *num1, s21_decimal *num2) {
   return S21_SUCCESS;
 }
 
-/**
- * @brief Выполняет умножение 96-битных мантисс "в столбик".
- *
- * @param value_1 Первый множитель.
- * @param value_2 Второй множитель.
- * @param temp_result 192-битный (6 x uint32_t) массив для результата.
- */
 void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
                         uint32_t temp_result[6]) {
   // Алгоритм имитирует умножение чисел в столбик, как в школе.
@@ -179,7 +140,7 @@ void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
   // на каждую "цифру" второго (bits[j]).
   for (int i = 0; i < 3; i++) {
     uint64_t carry = 0;  // Перенос внутри одного цикла (при умножении на одну
-                      // "цифру" value_2)
+                         // "цифру" value_2)
     for (int j = 0; j < 3; j++) {
       // Позиция, в которую мы будем записывать результат.
       int pos = i + j;
@@ -209,21 +170,8 @@ void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
   }
 }
 
-/**
- * @brief Нормализует 192-битный результат, чтобы он поместился в 96 бит.
- *
- * Функция делит 192-битное число на 10, уменьшая масштаб, пока оно не
- * поместится в 96 бит или пока масштаб не станет слишком маленьким. Применяет
- * банковское округление.
- *
- * @param temp_result 192-битный (6 x uint32_t) исходный результат.
- * @param scale Начальный масштаб.
- * @param sign Знак результата.
- * @param result Указатель на s21_decimal для записи финального значения.
- * @return int Код ошибки (0 - OK, 1 или 2 - переполнение).
- */
 uint32_t normalize_and_fit(uint32_t temp_result[6], int scale, int sign,
-                       s21_decimal *result) {
+                           s21_decimal *result) {
   uint32_t last_digit = 0;
 
   while ((temp_result[3] || temp_result[4] || temp_result[5] || scale > 28) &&

@@ -1,13 +1,13 @@
 #include <stdio.h>
 
-#include "../include/murk_helpers.h"
-#include "../include/s21_helpers.h"
 #include "../include/s21_decimal.h"
+#include "../include/s21_helpers.h"
 // =================================================================================
 //                            ОСНОВНАЯ ФУНКЦИЯ СЛОЖЕНИЯ
 // =================================================================================
 
-int32_t murk_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int32_t murk_add(s21_decimal value_1, s21_decimal value_2,
+                 s21_decimal *result) {
   if (!result) return 1;  // Защита от NULL указателя
   *result = (s21_decimal){{0, 0, 0, 0}};
 
@@ -88,7 +88,8 @@ int32_t murk_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) 
 // =================================================================================
 //                            ОСНОВНАЯ ФУНКЦИЯ ВЫЧИТАНИЯ
 // =================================================================================
-int32_t murk_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int32_t murk_sub(s21_decimal value_1, s21_decimal value_2,
+                 s21_decimal *result) {
   // Чтобы вычесть value_2, мы инвертируем его знак и прибавляем.
   // A - B  <=>  A + (-B)
 
@@ -111,7 +112,7 @@ int32_t murk_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) 
  * @return int Код ошибки (0 - OK, 1 - положительное переполнение, 2 -
  * отрицательное).
  */
-uint32_t murk_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int murk_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   // ШАГ 0: Полностью обнуляем результат в самом начале.
   // Это ГАРАНТИРУЕТ, что мы никогда не будем работать с мусорными данными
   // в `result`, особенно в `result->bits[3]`.
