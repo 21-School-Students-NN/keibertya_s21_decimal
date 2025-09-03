@@ -50,7 +50,7 @@ START_TEST(test_mul_positive_by_zero) {
   s21_decimal_from_int(0, 0, 0, &val2);
   s21_decimal_from_int(0, 0, 0, &expected);
 
-  int return_code = s21_mul(val1, val2, &result);
+  int return_code = murk_mul(val1, val2, &result);
   ck_assert_int_eq(return_code, S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
@@ -64,7 +64,7 @@ START_TEST(test_mul_zero_by_negative) {
   s21_decimal_from_int(-456, 1, 5, &val2);  // Можно любой масштаб
   s21_decimal_from_int(0, 0, 0, &expected);
 
-  int return_code = s21_mul(val1, val2, &result);
+  int return_code = murk_mul(val1, val2, &result);
   ck_assert_int_eq(return_code, S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
@@ -78,7 +78,7 @@ START_TEST(test_mul_one) {
   s21_decimal_from_int(1, 0, 0, &val2);
   s21_decimal_from_int(123456, 0, 3, &expected);
 
-  int return_code = s21_mul(val1, val2, &result);
+  int return_code = murk_mul(val1, val2, &result);
   ck_assert_int_eq(return_code, S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 
@@ -86,7 +86,7 @@ START_TEST(test_mul_one) {
   s21_decimal_from_int(1, 1, 0, &val2);
   s21_decimal_from_int(123456, 1, 3, &expected);
 
-  return_code = s21_mul(val1, val2, &result);
+  return_code = murk_mul(val1, val2, &result);
   ck_assert_int_eq(return_code, S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
@@ -99,19 +99,19 @@ START_TEST(test_mul_signs) {
   s21_decimal_from_int(5, 0, 0, &val1);
   s21_decimal_from_int(10, 0, 0, &val2);
   s21_decimal_from_int(50, 0, 0, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 
   // pos * neg = neg (5 * -10 = -50)
   s21_decimal_from_int(10, 1, 0, &val2);
   s21_decimal_from_int(50, 1, 0, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 
   // neg * neg = pos (-5 * -10 = 50)
   s21_decimal_from_int(5, 1, 0, &val1);
   s21_decimal_from_int(50, 0, 0, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
 END_TEST
@@ -124,7 +124,7 @@ START_TEST(test_mul_with_scale) {
   s21_decimal_from_int(15, 0, 1, &val2);
   s21_decimal_from_int(225, 0, 2, &expected);  // scale 1 + 1 = 2
 
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
 END_TEST
@@ -167,7 +167,7 @@ START_TEST(test_mul_overflow_and_clean_normalization) {
   // Ожидаемый результат должен быть идентичен val1
   expected = val1;
 
-  int return_code = s21_mul(val1, val2, &result);
+  int return_code = murk_mul(val1, val2, &result);
 
   ck_assert_int_eq(return_code, S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
@@ -200,7 +200,7 @@ START_TEST(test_mul_overflow_and_normalization_simple) {
   // Ожидаемый результат: 15 с масштабом 28
   s21_decimal_from_int(15, 0, 28, &expected);
 
-  int return_code = s21_mul(val1, val2, &result);
+  int return_code = murk_mul(val1, val2, &result);
 
   ck_assert_int_eq(return_code, S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
@@ -218,7 +218,7 @@ START_TEST(test_mul_rounding_bankers) {
   // normalize: делим на 10 -> мантисса 1, остаток 5.
   // Последняя цифра (1) нечетная, округляем до 2.
   s21_decimal_from_int(2, 0, 28, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 
   // Тест 2: отброшенная цифра 5, последняя оставшаяся - четная (2). Округляем
@@ -228,7 +228,7 @@ START_TEST(test_mul_rounding_bankers) {
   // normalize: делим на 10 -> мантисса 2, остаток 5.
   // Последняя цифра (2) четная, отбрасываем остаток.
   s21_decimal_from_int(2, 0, 28, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
 END_TEST
@@ -243,7 +243,7 @@ START_TEST(test_mul_rounding_simple) {
   // Промежуточный результат: мантисса 17, scale 29.
   // normalize: делим на 10 -> мантисса 1, остаток 7. Округляем до 2.
   s21_decimal_from_int(2, 0, 28, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 
   // Тест 2: отброшенная цифра < 5 (2). Округляем вниз.
@@ -252,7 +252,7 @@ START_TEST(test_mul_rounding_simple) {
   // Промежуточный результат: мантисса 12, scale 29.
   // normalize: делим на 10 -> мантисса 1, остаток 2. Отбрасываем.
   s21_decimal_from_int(1, 0, 28, &expected);
-  ck_assert_int_eq(s21_mul(val1, val2, &result), S21_SUCCESS);
+  ck_assert_int_eq(murk_mul(val1, val2, &result), S21_SUCCESS);
   ck_assert_int_eq(s21_decimal_is_equal(result, expected), 1);
 }
 END_TEST
@@ -272,21 +272,21 @@ START_TEST(test_mul_infinity) {
 
   // MAX_DECIMAL * 2 -> S21_INFINITY
   s21_decimal_from_int(2, 0, 0, &val);
-  ck_assert_int_eq(s21_mul(max_dec, val, &result), S21_INFINITY);
+  ck_assert_int_eq(murk_mul(max_dec, val, &result), S21_TOO_LARGE);
 
   // MAX_DECIMAL * (-2) -> S21_NEGATIVE_INFINITY
   s21_decimal_from_int(2, 1, 0, &val);
-  ck_assert_int_eq(s21_mul(max_dec, val, &result), S21_NEGATIVE_INFINITY);
+  ck_assert_int_eq(murk_mul(max_dec, val, &result), S21_TOO_SMALL);
 }
 END_TEST
 
 // --- Функция для создания набора тестов ---
 
-Suite *mul_suite(void) {
+Suite *murk_mul_suite(void) {
   Suite *s;
   TCase *tc_core;
 
-  s = suite_create("s21_mul");
+  s = suite_create("murk_mul");
   tc_core = tcase_create("Core");
 
   // Добавляем тесты в набор

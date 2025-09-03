@@ -10,7 +10,7 @@ Suite *s21_sub_suite(void);
 Suite *s21_mul_suite(void);
 Suite *s21_div_suite(void);
 // murk's suite
-Suite *s21_add_sub_suite(void);
-Suite *mul_suite(void);
+Suite *murk_add_sub_suite(void);
+Suite *murk_mul_suite(void);
 
 #endif /* S21_SUITES_H */

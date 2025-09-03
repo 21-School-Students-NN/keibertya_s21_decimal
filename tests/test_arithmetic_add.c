@@ -5,7 +5,7 @@ START_TEST(test_add_positive_basic) {
   s21_decimal a = {{5, 0, 0, 0}};
   s21_decimal b = {{3, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = murk_add(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 8);
@@ -20,7 +20,7 @@ START_TEST(test_add_different_scale) {
   s21_decimal a = {{123, 0, 0, 0x00010000}};  // 12.3
   s21_decimal b = {{45, 0, 0, 0x00020000}};   // 0.45
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = murk_add(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 1275);            // 12.75 * 100
@@ -33,7 +33,7 @@ START_TEST(test_add_positive_negative) {
   s21_decimal a = {{10, 0, 0, 0}};          // 10
   s21_decimal b = {{3, 0, 0, 0x80000000}};  // -3
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = murk_add(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 7);
@@ -46,7 +46,7 @@ START_TEST(test_add_both_negative) {
   s21_decimal a = {{5, 0, 0, 0x80000000}};  // -5
   s21_decimal b = {{2, 0, 0, 0x80000000}};  // -2
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = murk_add(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 7);
@@ -59,7 +59,7 @@ START_TEST(test_add_overflow) {
   s21_decimal max_val = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};
   s21_decimal one = {{1, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_add(max_val, one, &result);
+  int error = murk_add(max_val, one, &result);
 
   ck_assert_int_eq(error, 1);  // Ошибка переполнения
 }
@@ -70,7 +70,7 @@ START_TEST(test_add_underflow) {
   s21_decimal min_val = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x80000000}};
   s21_decimal one = {{1, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_sub(min_val, one, &result);
+  int error = murk_sub(min_val, one, &result);
 
   ck_assert_int_eq(error, 2);  // Ошибка нижнего переполнения
 }
@@ -81,7 +81,7 @@ START_TEST(test_sub_positive_basic) {
   s21_decimal a = {{10, 0, 0, 0}};
   s21_decimal b = {{3, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_sub(a, b, &result);
+  int error = murk_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 7);
@@ -94,7 +94,7 @@ START_TEST(test_sub_negative_result) {
   s21_decimal a = {{3, 0, 0, 0}};
   s21_decimal b = {{10, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_sub(a, b, &result);
+  int error = murk_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 7);
@@ -107,7 +107,7 @@ START_TEST(test_sub_zero) {
   s21_decimal a = {{100, 0, 0, 0}};
   s21_decimal b = {{0, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_sub(a, b, &result);
+  int error = murk_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 100);
@@ -120,7 +120,7 @@ START_TEST(test_sub_equal_numbers) {
   s21_decimal a = {{42, 0, 0, 0}};
   s21_decimal b = {{42, 0, 0, 0}};
   s21_decimal result;
-  int error = s21_sub(a, b, &result);
+  int error = murk_sub(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   ck_assert_int_eq(result.bits[0], 0);
@@ -133,7 +133,7 @@ START_TEST(test_add_large_scale) {
   s21_decimal a = {{123456789, 0, 0, 0x00080000}};  // 1.23456789
   s21_decimal b = {{1, 0, 0, 0x00010000}};          // 0.1
   s21_decimal result;
-  int error = s21_add(a, b, &result);
+  int error = murk_add(a, b, &result);
 
   ck_assert_int_eq(error, 0);
   // Ожидается 1.33456789 с scale=8
@@ -142,30 +142,7 @@ START_TEST(test_add_large_scale) {
 }
 END_TEST
 
-// Некорректный decimal (ненулевые младшие биты)
-// START_TEST(test_add_invalid_decimal) {
-//     s21_decimal a = {{1, 0, 0, 0x0000FF00}}; // Некорректный
-//     s21_decimal b = {{1, 0, 0, 0}};
-//     s21_decimal result;
-//     int error = s21_add(a, b, &result);
-
-//     // Ожидается либо ошибка, либо корректная обработка
-//     // (зависит от реализации)
-//     ck_assert(error == 0 || error > 0);
-// }
-// END_TEST
-
-// //NULL pointer test
-// START_TEST(test_add_null_pointer) {
-//     s21_decimal a = {{1, 0, 0, 0}};
-//     s21_decimal b = {{1, 0, 0, 0}};
-//     int error = s21_add(a, b, NULL);
-
-//     ck_assert_int_eq(error, 1);  // Ожидается ошибка
-// }
-// END_TEST
-
-Suite *s21_add_sub_suite(void) {
+Suite *murk_add_sub_suite(void) {
   Suite *s;
   TCase *tc_core;
 

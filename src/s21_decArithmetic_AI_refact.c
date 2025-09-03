@@ -2,18 +2,19 @@
 
 #include "../include/murk_helpers.h"
 #include "../include/s21_helpers.h"
+#include "../include/s21_decimal.h"
 // =================================================================================
 //                            ОСНОВНАЯ ФУНКЦИЯ СЛОЖЕНИЯ
 // =================================================================================
 
-Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int32_t murk_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   if (!result) return 1;  // Защита от NULL указателя
   *result = (s21_decimal){{0, 0, 0, 0}};
 
   // --- БЫСТРЫЙ ПУТЬ ---
   if (_get_scale(&value_1) == _get_scale(&value_2) &&
       _get_sign(&value_1) == _get_sign(&value_2)) {
-    uInt carry = add_96_mantissas(value_1, value_2, result);
+    uint32_t carry = add_96_mantissas(value_1, value_2, result);
     if (carry == 0) {
       result->bits[3] = value_1.bits[3];
       return S21_SUCCESS;
@@ -30,12 +31,12 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 
   if (_get_sign(&value_1) == _get_sign(&value_2)) {  // СЛОЖЕНИЕ
     s21_decimal result_bits = {{0, 0, 0, 0}};
-    uInt carry_out = add_96_mantissas(norm_val1, norm_val2, &result_bits);
+    uint32_t carry_out = add_96_mantissas(norm_val1, norm_val2, &result_bits);
     int final_scale = _get_scale(&norm_val1);
 
     while (carry_out > 0) {
       if (final_scale <= 0) {
-        return _get_sign(&value_1) ? S21_NEGATIVE_INFINITY : S21_INFINITY;
+        return _get_sign(&value_1) ? S21_TOO_SMALL : S21_TOO_LARGE;
       }
       final_scale--;
       carry_out = divide_and_round(&result_bits, carry_out);
@@ -61,10 +62,10 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     }
 
     // Вычитаем мантиссы "в столбик" с заемом
-    uLong borrow = 0;
+    uint64_t borrow = 0;
     for (int i = 0; i < 3; i++) {
-      uLong diff = (uLong)ptr_big->bits[i] - ptr_small->bits[i] - borrow;
-      result->bits[i] = (uInt)diff;
+      uint64_t diff = (uint64_t)ptr_big->bits[i] - ptr_small->bits[i] - borrow;
+      result->bits[i] = (uint32_t)diff;
       // Если произошло заимствование, `diff` будет очень большим.
       // `diff >> 63` вернет 1, если был заем, и 0, если нет.
       borrow = (diff >> 63) & 1;
@@ -87,7 +88,7 @@ Int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 // =================================================================================
 //                            ОСНОВНАЯ ФУНКЦИЯ ВЫЧИТАНИЯ
 // =================================================================================
-Int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int32_t murk_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   // Чтобы вычесть value_2, мы инвертируем его знак и прибавляем.
   // A - B  <=>  A + (-B)
 
@@ -98,7 +99,7 @@ Int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 
   // Вызываем вашу функцию сложения, которая сама определит,
   // что знаки разные, и выполнит вычитание.
-  return s21_add(value_1, value_2, result);
+  return murk_add(value_1, value_2, result);
 }
 
 /**
@@ -110,7 +111,7 @@ Int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
  * @return int Код ошибки (0 - OK, 1 - положительное переполнение, 2 -
  * отрицательное).
  */
-uInt s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+uint32_t murk_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   // ШАГ 0: Полностью обнуляем результат в самом начале.
   // Это ГАРАНТИРУЕТ, что мы никогда не будем работать с мусорными данными
   // в `result`, особенно в `result->bits[3]`.
