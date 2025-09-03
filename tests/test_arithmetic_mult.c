@@ -1,7 +1,8 @@
+#include <stdio.h>
 #include <string.h>
 
-#include "../include/s21_helpers_func.h"
-#include "../include/suites.h"
+#include "../include/murk_helpers.h"
+#include "../include/s21_suites.h"
 // --- Вспомогательные функции для тестов ---
 
 // Создает s21_decimal из int, знака и масштаба

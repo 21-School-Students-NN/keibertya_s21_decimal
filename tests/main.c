@@ -1,10 +1,21 @@
-#include "../include/suites.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../include/s21_decimal.h"
+#include "../include/s21_suites.h"
 
 int main(void) {
   int number_failed;
   Suite *s = s21_add_sub_suite();
   SRunner *sr = srunner_create(s);
 
+  //  TODO(all): add after comment your suits...
+  srunner_add_suite(sr, s21_add_suite());
+  srunner_add_suite(sr, s21_sub_suite());
+  srunner_add_suite(sr, s21_mul_suite());
+  srunner_add_suite(sr, s21_div_suite());
+  // murk's suite
+  srunner_add_suite(sr, s21_add_sub_suite());
   srunner_add_suite(sr, mul_suite());
 
   // Check for CK_RUN_SUITE and set a custom log file
@@ -21,5 +32,5 @@ int main(void) {
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
 
-  return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+  return (number_failed == 0) ? S21_SUCCESS : S21_ERROR;
 }

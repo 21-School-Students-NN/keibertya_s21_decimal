@@ -1,5 +1,5 @@
-#include "../include/s21_helpers_func.h"
-#include "../include/suites.h"
+#include "../include/murk_helpers.h"
+#include "../include/s21_suites.h"
 // Базовое сложение положительных чисел
 START_TEST(test_add_positive_basic) {
   s21_decimal a = {{5, 0, 0, 0}};
