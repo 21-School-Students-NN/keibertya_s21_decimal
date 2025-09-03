@@ -2,6 +2,7 @@
 #define S21_HELPERS_H
 
 #include <string.h>
+#include <stdio.h>
 
 #include "s21_decimal.h"
 
@@ -10,6 +11,9 @@
 
 #define MAX_SCALE 28
 #define MAX_SIGN 1
+
+#define MAX_PRECISION 29
+#define DECIMAL_MANTISSA_BITS 96
 
 /** @brief Data type for holding the meta information about decimal such `sign`
  * or `scale` */
@@ -61,7 +65,9 @@ int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
  * @date 02.08.2025
  */
 void _init_decimal_zero(s21_decimal *dec) __attribute__((nonnull));
-
+int _is_zero(s21_decimal value) __attribute__((nonnull));
+int _is_equal(s21_decimal value1, s21_decimal value2);
+void _print_decimal_debug(s21_decimal dec);
 //======================================================================
 //  Mantissa helpers (96-bit) and normalization
 //======================================================================

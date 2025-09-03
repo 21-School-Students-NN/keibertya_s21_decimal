@@ -43,6 +43,7 @@ static int _add_normalized(uint32_t carry_in, s21_decimal *x, s21_decimal *y, s2
 }
 #endif
 
+/* not used now (cppcheck err)
 static int _normalize_to_upper(s21_decimal* to_normalize, meta_t diff) {
   uint32_t carry = 0;
   s21_decimal tmp = *to_normalize;
@@ -55,7 +56,7 @@ static int _normalize_to_upper(s21_decimal* to_normalize, meta_t diff) {
 
   return carry ? S21_ERROR : S21_SUCCESS;
 }
-
+*/
 static void _swap(meta_t* a, meta_t* b) {
   if (a != b) {
     *a ^= *b;
@@ -71,7 +72,7 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   meta_t min_scale = _get_scale(&value_2);
   if (max_scale < min_scale) _swap(&max_scale, &min_scale);
 
-  meta_t diff = max_scale - min_scale;
+  // meta_t diff = max_scale - min_scale; not used (cppcheck err)
 
   uint32_t carry = 0;
   // Delegate subtraction to s21_sub if signs differ (no subtraction here)

@@ -34,6 +34,23 @@ void _init_decimal_zero(s21_decimal *dec) {
   memset(dec, 0, sizeof(s21_decimal));
 }
 
+int _is_zero(s21_decimal value) {
+    return value.bits[0] == 0 && value.bits[1] == 0 && value.bits[2] == 0;
+}
+
+int _is_equal(s21_decimal value1, s21_decimal value2) {
+    return value1.bits[0] == value2.bits[0] &&
+           value1.bits[1] == value2.bits[1] &&
+           value1.bits[2] == value2.bits[2] &&
+           value1.bits[3] == value2.bits[3];
+}
+
+void _print_decimal_debug(s21_decimal dec) {
+    printf("Sign: %d, Scale: %d, ", _get_sign(&dec), _get_scale(&dec));
+    printf("Mantissa: 0x%08X%08X%08X", dec.bits[2], dec.bits[1], dec.bits[0]);
+    printf(" Full: [0x%08X %08X %08X %08X]\n", 
+           dec.bits[3], dec.bits[2], dec.bits[1], dec.bits[0]);
+}
 //======================================================================
 //  Mantissa helpers (96-bit) and normalization
 //======================================================================

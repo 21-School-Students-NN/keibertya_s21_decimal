@@ -37,6 +37,7 @@ Suite *s21_sub_suite() {
   TCase *tc = tcase_create("core");
 
   tcase_add_test(tc, test_sub_zero);
+  tcase_add_test(tc, test_sub_small_decimal);
 
   suite_add_tcase(ps, tc);
   return ps;
