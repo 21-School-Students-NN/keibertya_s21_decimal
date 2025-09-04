@@ -126,38 +126,6 @@ START_TEST(test_div_large_numbers) {
 }
 END_TEST
 
-// START_TEST(test_div_fractional_result) {
-//   s21_decimal num1 = {{1, 0, 0, 0}};
-//   s21_decimal num2 = {{3, 0, 0, 0}};
-
-//   s21_decimal result;
-  
-//   // 1/3 should give 0.333... with banking rounding
-//   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
-//                 "s21_div failed with fractional result");
-  
-//   // Check that scale is appropriate
-//   ck_assert_msg(_get_scale(&result) > 0,
-//                 "Fractional division should result in scaled decimal");
-// }
-// END_TEST
-
-// START_TEST(test_div_precision_limits) {
-//   s21_decimal num1 = {{1, 0, 0, 0}};
-//   s21_decimal num2 = {{7, 0, 0, 0}};
-//   _set_scale(&num1, 28); // Very small number
-
-//   s21_decimal result;
-  
-//   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
-//                 "s21_div failed at precision limits");
-  
-//   // Should handle maximum scale correctly
-//   ck_assert_msg(_get_scale(&result) <= 28,
-//                 "Result scale should not exceed maximum");
-// }
-// END_TEST
-
 START_TEST(test_div_rounding) {
   s21_decimal num1 = {{10, 0, 0, 0}};
   s21_decimal num2 = {{4, 0, 0, 0}};
@@ -172,36 +140,53 @@ START_TEST(test_div_rounding) {
 }
 END_TEST
 
-// START_TEST(test_div_banking_rounding) {
-//   s21_decimal num1 = {{1, 0, 0, 0}};
-//   s21_decimal num2 = {{2, 0, 0, 0}};
+START_TEST(test_div_periodic_fraction) {
+  s21_decimal num1 = {{1, 0, 0, 0}};
+  s21_decimal num2 = {{3, 0, 0, 0}};
 
-//   s21_decimal result;
+  s21_decimal result;
   
-//   // Test banking rounding: 0.5 should round to 0 (even)
-//   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
-//                 "s21_div failed banking rounding test");
-//   // The result should be 0.5 which gets rounded based on banking rules
-//   ck_assert_msg(_get_scale(&result) > 0,
-//                 "Banking rounding should be applied");
-// }
-// END_TEST
+  // 1/3 = 0.3333333333333333333333333333 -> to hex: AC544CA14B700CB05555555
+  s21_decimal expected = {{0x05555555, 0x14B700CB, 0x0AC544CA, 0}};
+  _set_scale(&expected, 28);     // 28 знаков после запятой
 
-// START_TEST(test_div_overflow_handling) {
-//   s21_decimal max_val = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};
-//   s21_decimal min_val = {{1, 0, 0, 0}};
-//   _set_scale(&min_val, 28); // Very small number
+  ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
+                "s21_div failed on 1 / 3");
+  ck_assert_msg(_is_equal(result, expected),
+                "1 / 3 should be 0.3333333333333333333333333333");
+}
+END_TEST
 
-//   s21_decimal result;
-  
-//   // This should trigger overflow handling
-//   int ret = s21_div(max_val, min_val, &result);
-  
-//   // Should either succeed with proper scaling or return error
-//   ck_assert_msg(ret == 0 || ret == S21_TOO_LARGE,
-//                 "s21_div should handle overflow gracefully");
-// }
-// END_TEST
+START_TEST(test_div_complex_periodic) {
+  s21_decimal num1 = {{1, 0, 0, 0}};
+  s21_decimal num2 = {{13, 0, 0, 0}};
+
+  s21_decimal result;
+  // 1/13 = 0.0769230769230769230769230769 -> to hex: 0x27C4AF38EA062A5013B13B1
+  s21_decimal expected = {{0x013B13B1, 0x8EA062A5, 0x27C4AF3, 0}};
+  _set_scale(&expected, 28);
+
+  ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
+                "s21_div failed on complex periodic fraction");
+  ck_assert_msg(_is_equal(result, expected),
+                "1 / 13 should be 0.0769230769230769230769230769");
+}
+END_TEST
+
+START_TEST(test_div_simple_case) {
+  s21_decimal num1 = {{0x7D, 0, 0, 0}};
+  s21_decimal num2 = {{0x19, 0, 0, 0}};
+
+  s21_decimal result;
+  // 125/25 = 5
+  s21_decimal expected = {{0x5, 0x0, 0x0, 0}};
+
+  ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
+                "s21_div failed on complex periodic fraction");
+  ck_assert_msg(_is_equal(result, expected),
+                "1 / 13 should be 0.0769230769230769230769230769");
+}
+END_TEST
 
 Suite *s21_div_suite() {
   Suite *ps = suite_create("div");
@@ -214,11 +199,10 @@ Suite *s21_div_suite() {
   tcase_add_test(tc, test_div_with_different_scales);
   tcase_add_test(tc, test_div_with_negative);
   tcase_add_test(tc, test_div_large_numbers);
-  // tcase_add_test(tc, test_div_fractional_result);
-  // tcase_add_test(tc, test_div_precision_limits);
   tcase_add_test(tc, test_div_rounding);
-  // tcase_add_test(tc, test_div_banking_rounding);
-  // tcase_add_test(tc, test_div_overflow_handling);
+  tcase_add_test(tc, test_div_periodic_fraction);
+  tcase_add_test(tc, test_div_complex_periodic);
+  tcase_add_test(tc, test_div_simple_case);
   suite_add_tcase(ps, tc);
   return ps;
 }
