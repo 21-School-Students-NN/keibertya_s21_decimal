@@ -136,7 +136,7 @@ int divide_mantissas(s21_decimal dividend, s21_decimal divisor,
     s21_decimal temp;
     int bits_to_shift = 0;
     
-    // Нормализуем делитель (сдвигаем влево пока старший бит не станет 1)
+    // Нормализуем делитель (сдвигаем влево пока старший бит не станет 1 или не дойдем до делителя по ширине)
     while (!(divisor.bits[2] & 0x80000000) && compare_mantissas(divisor, *remainder) <= 0) {
         if (shift_left(&divisor)) {
             break; // Переполнение при сдвиге
@@ -235,11 +235,6 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
         // Добавляем десятичные разряды пока есть остаток и не достигнут максимум
         while (!_is_zero(temp_remainder) && (precision + result_scale) < MAX_SCALE && precision < MAX_PRECISION) {
             // Умножаем остаток на 10
-            // for (int i = 0; i < 10; i++) {
-            //     if (multiply_by_10(&temp_remainder)) {
-            //         break; // Переполнение
-            //     }
-            // }
             multiply_by_10(&temp_remainder);
             // Делим снова
             s21_decimal new_quotient = {0};
@@ -249,10 +244,6 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
                 break;
             }
 
-            // Добавляем к частному
-            // for (int i = 0; i < precision; i++) {
-            //     multiply_by_10(&temp_quotient);
-            // }
             multiply_by_10(&temp_quotient);
 
             s21_add(temp_quotient, new_quotient, &temp_quotient);
@@ -290,12 +281,3 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     
     return 0;
 }
-
-// int main() {
-//     s21_decimal one = {{1, 0, 0, 0}};
-//     s21_decimal result;
-//     s21_decimal expected = {{1, 0, 0, 0}};
-//     s21_div(one, one, &result);
-//     _print_decimal_debug(result);
-//     return 0;
-// }
