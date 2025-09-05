@@ -33,3 +33,7 @@ int _set_sign(s21_decimal *dec, const meta_t sign) {
 void _init_decimal_zero(s21_decimal *dec) {
   memset(dec, 0, sizeof(s21_decimal));
 }
+
+int _is_decimal_zero(const s21_decimal *dec) {
+  return !(dec->bits[0] | dec->bits[1] | dec->bits[2]);
+}

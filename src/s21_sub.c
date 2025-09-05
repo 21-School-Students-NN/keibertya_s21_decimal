@@ -1,10 +1,6 @@
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
 
-inline int _is_decimal_zero(const s21_decimal *num) {
-  return !(num->bits[0] | num->bits[1] | num->bits[2]);
-}
-
 int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   _init_decimal_zero(result);
 

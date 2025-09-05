@@ -62,6 +62,15 @@ int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
  */
 void _init_decimal_zero(s21_decimal *dec) __attribute__((nonnull));
 
+/**
+ * @brief Check, does the decimal zero or not
+ * @param dec Pointer to the decimal number to check
+ * @return `0` if decimal NOT zero and `1` otherwise
+ * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
+ * @date 05.09.2025
+ */
+int _is_decimal_zero(const s21_decimal *dec) __attribute__((nonnull));
+
 /*======================================================================
     MURK'S FUNCTIONS
 ======================================================================*/
