@@ -149,3 +149,11 @@ int _normalize_to_upper(s21_decimal *to_normalize) {
 
   return carry ? S21_ERROR : S21_SUCCESS;
 }
+
+int _compare_mantissas(const s21_decimal *value_1, const s21_decimal *value_2) {
+  int resp = 0;
+  for (int i = 2; i >= 0 && !resp; i--)
+    resp = value_1->bits[i] - value_2->bits[i];
+
+  return resp;
+}

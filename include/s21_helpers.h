@@ -117,17 +117,18 @@ int _divide_and_round(s21_decimal *dec, uint32_t carry)
 int _add_with_carry(const s21_decimal *x, const s21_decimal *y,
                     s21_decimal *result) __attribute__((nonnull));
 
+/**
+ * @brief Abs compare for mantissas
+ * @return `>0` while `|value_1|>|value_2|`, `<0` while `|value_1|<|value_2|`,
+ * `0` if they are equal.
+ * @author Mark Mindrin
+ * @date 05.09.2025
+ */
+int _compare_mantissas(const s21_decimal *value_1, const s21_decimal *value_2);
+
 /*======================================================================
     MURK'S FUNCTIONS
 ======================================================================*/
-
-/**
- * @brief Сравнивает абсолютные величины (мантиссы) двух чисел.
- * @return >0 если |value_1|>|value_2|, <0 если |value_1|<|value_2|, 0 если
- * равны.
- */
-int32_t compare_mantissas_96(const s21_decimal value_1,
-                             const s21_decimal value_2);
 
 /**
  * @brief Складывает две 96-битные мантиссы.
