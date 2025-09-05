@@ -71,6 +71,52 @@ void _init_decimal_zero(s21_decimal *dec) __attribute__((nonnull));
  */
 int _is_decimal_zero(const s21_decimal *dec) __attribute__((nonnull));
 
+/**
+ * @brief Trying normalize decimal by multiply by 10
+ * @param to_normalize Pointer to the decimal for normalize
+ * @return `S21_SUCCESS` while normilized and `S21_ERROR` otherwise
+ * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
+ * @date 15.08.2025
+ */
+int _normalize_to_upper(s21_decimal *to_normalize) __attribute__((nonnull));
+
+/**
+ * @brief Check, does the decimal zero or not
+ * @param value_1 First pointer to the decimal for normalize
+ * @param value_2 Second pointer to the decimal for normalize
+ * @return `S21_SUCCESS` normalized successfully `S21_TOO_SMAll`,
+ * `S21_TOO_LARGE` and `S21_ERROR` otherwise
+ * @author Murk Mindrin x Demian Domozhirov (darkdomian@gmial.com | trelawnm at
+ * 21 School)
+ * @date 05.09.2025
+ */
+int _normalizing(s21_decimal *value_1, s21_decimal *value_2)
+    __attribute__((nonnull));
+
+/**
+ * @brief Divide decimal by 10 with bank rounding
+ * @param dec Pointer to the decimal witch one should be rounded.
+ * @param carry Incoming carry data
+ * @return Overflow in this case or zero if everything is fine
+ * @author Murk Mindrin
+ * @date 05.09.2025
+ */
+int _divide_and_round(s21_decimal *dec, uint32_t carry)
+    __attribute__((nonnull));
+
+/**
+ * @brief Static helper function to emulate _addcarry_u32 intrinsic
+ * @param x First 32-bit addend
+ * @param y Second 32-bit addend
+ * @param result Pointer to store the 32-bit sum
+ *
+ * @return Output carry flag (0 or 1)
+ * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
+ * @date 05.09.2025
+ */
+int _add_with_carry(const s21_decimal *x, const s21_decimal *y,
+                    s21_decimal *result) __attribute__((nonnull));
+
 /*======================================================================
     MURK'S FUNCTIONS
 ======================================================================*/
@@ -106,22 +152,6 @@ uint8_t increment_96(s21_decimal *num);
  * @return true при переполнении, иначе false.
  */
 int multiply_96_mantissa(s21_decimal *num);
-
-/**
- * @brief Делит 97+ битное число на 10 с банковским округлением.
- * @param bits      Мантисса (будет изменена).
- * @param carry_in  Входящий перенос (старшие 32 бита числа).
- * @return uint32_t Возвращает новый перенос (0, если результат уместился в 96
- * бит).
- */
-uint32_t divide_and_round(s21_decimal *num, uint32_t carry_in);
-
-/**
- * @brief Нормализует два числа к общей степени "встречным" методом.
- *        Изменяет числа "по месту".
- * @return Код ошибки (0 - успех, 1 или 2 - ошибка).
- */
-uint32_t normalizing(s21_decimal *num1, s21_decimal *num2);
 
 /**
  * @brief Выполняет умножение 96-битных мантисс "в столбик".

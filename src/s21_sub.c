@@ -16,7 +16,7 @@ int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   s21_decimal norm_val1 = value_1;
   s21_decimal norm_val2 = value_2;
 
-  int norm_error = normalizing(&norm_val1, &norm_val2);
+  int norm_error = _normalizing(&norm_val1, &norm_val2);
   if (norm_error) return norm_error;
 
   s21_decimal *ptr_big, *ptr_small;
