@@ -28,7 +28,7 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
     else
       *result = value_1;
     // if not zero, trying to normalize
-  } else if (!(response = _normalizing(&value_1, &value_2))) {
+  } else if (!(response = _normalize(&value_1, &value_2))) {
     s21_decimal tmp_result = {0};
 
     uint32_t carry = _add_with_carry(&value_1, &value_2, &tmp_result);

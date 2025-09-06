@@ -42,7 +42,7 @@ int _is_decimal_zero(const s21_decimal *dec) {
 //  Arithmetic
 //======================================================================
 
-int _normalizing(s21_decimal *value_1, s21_decimal *value_2) {
+int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
   if (_get_scale(value_1) == _get_scale(value_2)) return S21_SUCCESS;
   if (value_1 == value_2) return S21_ERROR;
 
@@ -86,6 +86,51 @@ int _normalizing(s21_decimal *value_1, s21_decimal *value_2) {
       *value_2 = *ptr_low_scale;
       *value_1 = *ptr_high_scale;
     }
+  }
+
+  return status_code;
+}
+
+int _normalize_product(uint64_t product[6], int scale, int sign,
+                       s21_decimal *result) {
+  _init_decimal_zero(result);
+
+  uint32_t last_digit = 0;
+  int status_code = S21_SUCCESS;
+
+  while ((product[3] || product[4] || product[5] || scale > 28) && scale > 0) {
+    uint64_t remainder = 0;
+    for (int i = 5; i >= 0; i--) {
+      uint64_t dividend = (remainder << 32) | product[i];
+      product[i] = dividend / 10;
+      remainder = dividend % 10;
+    }
+    last_digit = remainder;
+    scale--;
+  }
+
+  if (product[3] || product[4] || product[5]) {
+    status_code = sign ? S21_TOO_SMALL : S21_TOO_LARGE;
+  }
+
+  if ((last_digit > 5 || (last_digit == 5 && (product[0] & 1))) &&
+      !status_code) {
+    s21_decimal one = {{1, 0, 0, 0}};
+    s21_decimal tmp = {{product[0], product[1], product[2], 0}};
+
+    if (_add_with_carry(&tmp, &one, &tmp)) {
+      status_code = sign ? S21_TOO_SMALL : S21_TOO_LARGE;
+    }
+
+    if (!status_code)
+      for (int i = 0; i < 3; ++i) product[i] = tmp.bits[i];
+  }
+
+  if (!status_code) {
+    for (int i = 0; i < 3; ++i) result->bits[i] = product[i];
+
+    _set_sign(result, sign);
+    _set_scale(result, scale);
   }
 
   return status_code;

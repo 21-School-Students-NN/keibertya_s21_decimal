@@ -90,8 +90,24 @@ int _normalize_to_upper(s21_decimal *to_normalize) __attribute__((nonnull));
  * 21 School)
  * @date 05.09.2025
  */
-int _normalizing(s21_decimal *value_1, s21_decimal *value_2)
+int _normalize(s21_decimal *value_1, s21_decimal *value_2)
     __attribute__((nonnull));
+
+/**
+ * @brief Normalize with rounding product of two decimal numbers and fit (if
+ * possible) to the `result` decimal number
+ * @param product The incoming production of two decimal to normalize for
+ * @param scale The scale of decimal after product
+ * @param sign The sign of decimal after product
+ * @param result Pointer to result where store the normalized data
+ * @return `S21_SUCCESS` on successful normalization, `S21_ERROR`,
+ * `S21_TOO_LARGE` or `S21_TOO_SMALL` otherwise
+ *
+ * @author Murk Mindrin
+ * @date 05.09.2025
+ */
+int _normalize_product(uint64_t product[6], int scale, int sign,
+                       s21_decimal *result) __attribute__((nonnull));
 
 /**
  * @brief Divide decimal by 10 with bank rounding
@@ -163,21 +179,5 @@ int multiply_96_mantissa(s21_decimal *num);
  */
 void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
                         uint32_t temp_result[6]);
-
-/**
- * @brief Нормализует 192-битный результат, чтобы он поместился в 96 бит.
- *
- * Функция делит 192-битное число на 10, уменьшая масштаб, пока оно не
- * поместится в 96 бит или пока масштаб не станет слишком маленьким. Применяет
- * банковское округление.
- *
- * @param temp_result 192-битный (6 x uint32_t) исходный результат.
- * @param scale Начальный масштаб.
- * @param sign Знак результата.
- * @param result Указатель на s21_decimal для записи финального значения.
- * @return int Код ошибки (0 - OK, 1 или 2 - переполнение).
- */
-uint32_t normalize_and_fit(uint32_t temp_result[6], int scale, int sign,
-                           s21_decimal *result);
 
 #endif  // S21_HELPERS_H

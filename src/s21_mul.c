@@ -2,7 +2,11 @@
 #include "../include/s21_helpers.h"
 
 int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+  if (!result) return S21_ERROR;
+  _init_decimal_zero(result);
+
   uint64_t product[6] = {0};  // Max result: 96 + 96 = 192 bit (6 words)
+  int status_code = S21_SUCCESS;
 
   for (int i = 0; i < 3; ++i) {
     uint64_t carry = 0;
@@ -21,18 +25,18 @@ int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     product[i] &= 0xFFFFFFFF;
   }
 
-  if (product[3] || product[4] || product[5]) {
-    return _get_sign(result) ? S21_TOO_SMALL : S21_TOO_LARGE;
+  int result_sign = _get_sign(&value_1) ^ _get_sign(&value_2);
+  int result_scale = _get_scale(&value_1) + _get_scale(&value_2);
+
+  if (!(product[3] || product[4] || product[5]) && result_scale <= MAX_SCALE) {
+    for (int i = 0; i < 3; ++i) result->bits[i] = product[i];
+
+    _set_sign(result, result_sign);
+    _set_scale(result, result_scale);
+  } else {
+    status_code =
+        _normalize_product(product, result_scale, result_sign, result);
   }
 
-  // Save the answer to `result`
-  for (int i = 0; i < 3; ++i) result->bits[i] = product[i];
-
-  // XOR the sign for product
-  _set_sign(result, (_get_sign(&value_1) ^ _get_sign(&value_2)));
-
-  // use banking rounding if scale > 28
-  _set_scale(result, _get_scale(&value_1) + _get_scale(&value_2));
-
-  return S21_SUCCESS;
+  return status_code;
 }
