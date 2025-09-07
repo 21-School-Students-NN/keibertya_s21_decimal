@@ -197,8 +197,9 @@ int _normalize_to_upper(s21_decimal *to_normalize) {
 
 int _compare_mantissas(const s21_decimal *value_1, const s21_decimal *value_2) {
   int resp = 0;
-  for (int i = 2; i >= 0 && !resp; i--)
-    resp = value_1->bits[i] - value_2->bits[i];
-
+  for (int i = 2; i >= 0 && !resp; i--) {
+    if ((uint32_t)value_1->bits[i] > (uint32_t)value_2->bits[i]) resp = 1;
+    if ((uint32_t)value_1->bits[i] < (uint32_t)value_2->bits[i]) resp = -1;
+  }
   return resp;
 }

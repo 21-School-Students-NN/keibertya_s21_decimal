@@ -3,10 +3,15 @@
 
 int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   if (!result) return S21_ERROR;
+
   _init_decimal_zero(result);
 
-  uint64_t product[6] = {0};  // Max result: 96 + 96 = 192 bit (6 words)
   int status_code = S21_SUCCESS;
+
+  if (_is_decimal_zero(&value_1) || _is_decimal_zero(&value_2))
+    return status_code;
+
+  uint64_t product[6] = {0};  // Max result: 96 + 96 = 192 bit (6 words)
 
   for (int i = 0; i < 3; ++i) {
     uint64_t carry = 0;

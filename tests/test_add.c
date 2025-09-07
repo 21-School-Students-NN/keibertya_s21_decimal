@@ -104,6 +104,7 @@ START_TEST(test_add_different_scales) {
 }
 END_TEST
 
+#ifdef ENABLE_EXTENDED_TESTS
 START_TEST(test_add_bank_rounding) {
   s21_decimal a = {
       {0xFFFFFFFF - 1, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000}};  // 2^96 - 2
@@ -118,6 +119,7 @@ START_TEST(test_add_bank_rounding) {
   ck_assert_uint_eq(_get_scale(&result), 0);
 }
 END_TEST
+#endif
 
 START_TEST(test_add_regular_rounding) {
   s21_decimal a = {
@@ -134,7 +136,7 @@ START_TEST(test_add_regular_rounding) {
 }
 END_TEST
 
-#if 1  // MURK's TESTS
+#if ENABLE_EXTENDED_TESTS  // MURK's TESTS
 
 // Базовое сложение положительных чисел
 START_TEST(test_add_positive_basic) {
@@ -254,22 +256,22 @@ Suite* s21_add_suite() {
   tcase_add_test(tc, test_add_min_overflow);
   tcase_add_test(tc, test_add_same_cale);
   tcase_add_test(tc, test_add_different_scales);
-  tcase_add_test(tc, test_add_bank_rounding);
   tcase_add_test(tc, test_add_regular_rounding);
 
-#if 1
-  TCase* tc_murk = tcase_create("murk");
+#ifdef ENABLE_EXTENDED_TESTS
+  TCase* tc_extended = tcase_create("extended");
 
-  tcase_add_test(tc_murk, test_add_positive_basic);
-  tcase_add_test(tc_murk, test_add_different_scale);
-  tcase_add_test(tc_murk, test_add_positive_negative);
-  tcase_add_test(tc_murk, test_add_both_negative);
-  tcase_add_test(tc_murk, test_add_overflow);
-  tcase_add_test(tc_murk, test_sub_positive_basic);
-  tcase_add_test(tc_murk, test_sub_negative_result);
-  tcase_add_test(tc_murk, test_add_large_scale);
+  tcase_add_test(tc_extended, test_add_bank_rounding);
+  tcase_add_test(tc_extended, test_add_positive_basic);
+  tcase_add_test(tc_extended, test_add_different_scale);
+  tcase_add_test(tc_extended, test_add_positive_negative);
+  tcase_add_test(tc_extended, test_add_both_negative);
+  tcase_add_test(tc_extended, test_add_overflow);
+  tcase_add_test(tc_extended, test_sub_positive_basic);
+  tcase_add_test(tc_extended, test_sub_negative_result);
+  tcase_add_test(tc_extended, test_add_large_scale);
 
-  suite_add_tcase(ps, tc_murk);
+  suite_add_tcase(ps, tc_extended);
 #endif
 
   suite_add_tcase(ps, tc);

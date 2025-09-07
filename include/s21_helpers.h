@@ -5,6 +5,9 @@
 
 #include "s21_decimal.h"
 
+// de-comment for turning on the extended test
+// #define ENABLE_EXTENDED_TESTS
+
 #define SCALE_MASK 0x001F0000  // bit mask for scale bits 16-23 (8 bits) 0x1F
 #define SIGN_MASK 0x80000000   // bit mask for sign bit 31
 

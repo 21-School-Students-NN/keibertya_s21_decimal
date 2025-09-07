@@ -49,8 +49,6 @@ typedef struct {
  * @date
  */
 int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
-// TODO(trelawnm): remove murk's function
-int murk_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
 /**
  * @brief Subtracts two decimal numbers
@@ -63,8 +61,6 @@ int murk_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
  * @date
  */
 int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
-// TODO(trelawnm): remove murk's function
-int murk_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
 /**
  * @brief Multiplies two decimal numbers
@@ -77,8 +73,6 @@ int murk_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
  * @date
  */
 int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
-// TODO(trelawnm): remove murk's function
-int murk_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 
 /**
  * @brief Divides two decimal numbers
