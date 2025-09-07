@@ -23,6 +23,10 @@ ifeq ($(MAKECMDGOALS),gdb)
     CFLAGS 		+= 		$(DBG_FLAGS)
 endif
 
+ifeq ($(MORE_TESTS),1)
+    CFLAGS += -DENABLE_EXTENDED_TESTS
+endif
+
 # =============================================================================
 # Platform-Specific Configuration
 # =============================================================================
