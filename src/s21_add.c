@@ -1,102 +1,50 @@
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
 
-/**
- * @brief Static helper function to emulate _addcarry_u32 intrinsic
- * @param carry_in Input carry flag (0 or 1)
- * @param x First 32-bit addend
- * @param y Second 32-bit addend
- * @param result Pointer to store the 32-bit sum
- *
- * @return Output carry flag (0 or 1)
- */
-static inline meta_t _add_with_carry(meta_t carry_in, uint32_t x, uint32_t y,
-                                     uint32_t* result) {
-  uint64_t sum = (uint64_t)x + y + (carry_in ? 1 : 0);
-  *result = (uint32_t)sum;
-  return (sum >> 32) & 1;
-}
-
-/**
- * @brief Multiply by collomn with coverage data
- * @param carry_in Number to carry
- * @param x first addendum
- * @param y second addendum
- * @param result pointer to store the result
- * @return int32_t carry data - does the myltiply overflow
- * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
- * @date 15.08.2025
- */
-int32_t _multiply_collomn(uint32_t carry_in, uint32_t x, uint32_t y,
-                              uint32_t* result) {
-  uint64_t product = (uint64_t)x * y + carry_in;
-  *result = (uint32_t)product;
-  return product >> 32;
-}
-
-#if 0
-static int _add_normalized(uint32_t carry_in, s21_decimal *x, s21_decimal *y, s21_decimal *result) {
-  for (int i = 0; i < 3; ++i)
-    carry_in =
-        _add_with_carry(carry_in, x->bits[i], y->bits[i], &result->bits[i]);
-  return carry_in;
-}
-#endif
-
-/* not used now (cppcheck err)
-static int _normalize_to_upper(s21_decimal* to_normalize, meta_t diff) {
-  uint32_t carry = 0;
-  s21_decimal tmp = *to_normalize;
-
-  for (int d = 0; d < diff && !carry; ++d)
-    for (int i = 0; i < 3; ++i)
-      carry = _multiply_collomn(carry, tmp.bits[i], 10, &tmp.bits[i]);
-
-  if (!carry) *to_normalize = tmp;
-
-  return carry ? S21_ERROR : S21_SUCCESS;
-}
-*/
-static void _swap(meta_t* a, meta_t* b) {
-  if (a != b) {
-    *a ^= *b;
-    *b ^= *a;
-    *a ^= *b;
-  }
-}
-
-int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
+  if (!result) return S21_ERROR;
   _init_decimal_zero(result);
 
-  meta_t max_scale = _get_scale(&value_1);
-  meta_t min_scale = _get_scale(&value_2);
-  if (max_scale < min_scale) _swap(&max_scale, &min_scale);
-
-  // meta_t diff = max_scale - min_scale; not used (cppcheck err)
-
-  uint32_t carry = 0;
-  // Delegate subtraction to s21_sub if signs differ (no subtraction here)
-  if (_get_sign(&value_1) != _get_sign(&value_2))
-    return s21_sub(value_1, value_2, result);
-
-  // Normalize scales using meet method
-  if (_normalize_scales_meet(
-          (_get_scale(&value_1) <= _get_scale(&value_2)) ? &value_1 : &value_2,
-          (_get_scale(&value_1) > _get_scale(&value_2)) ? &value_1 : &value_2))
-    return _get_sign(&value_1) ? S21_TOO_SMALL : S21_TOO_LARGE;
-
-  // Add mantissas
-  for (int i = 0; i < 3; ++i)
-    carry = _add_with_carry(carry, (uint32_t)value_1.bits[i],
-                            (uint32_t)value_2.bits[i],
-                            (uint32_t *)&result->bits[i]);
-
-  _set_sign(result, _get_sign(&value_1));
-  _set_scale(result, _get_scale(&value_1));
-
-  // TODO(trelawnm): find more convenient way to return
-  if (carry) {
-    return _get_sign(result) ? S21_TOO_SMALL : S21_TOO_LARGE;
+  // redirect to s21_sub in case of different sign
+  if (_get_sign(&value_1) != _get_sign(&value_2)) {
+    s21_decimal *minuend, *subtrahend;
+    if (_get_sign(&value_1) > _get_sign(&value_2)) {
+      _set_sign(&value_1, 0);
+      minuend = &value_2;
+      subtrahend = &value_1;
+    } else {
+      _set_sign(&value_2, 0);
+      minuend = &value_1;
+      subtrahend = &value_2;
+    }
+    return s21_sub(*minuend, *subtrahend, result);
   }
-  return 0;
+
+  // handle case where one of dec is zero
+  int response = S21_SUCCESS;
+  if (_is_decimal_zero(&value_1) || _is_decimal_zero(&value_2)) {
+    if (_is_decimal_zero(&value_1))
+      *result = value_2;
+    else
+      *result = value_1;
+    // if not zero, trying to normalize
+  } else if (!(response = _normalize(&value_1, &value_2))) {
+    s21_decimal tmp_result = {0};
+
+    uint32_t carry = _add_with_carry(&value_1, &value_2, &tmp_result);
+    int final_scale = _get_scale(&value_1);
+
+    while (carry > 0 && final_scale--)
+      carry = _divide_and_round(&tmp_result, carry);
+
+    if (carry) {
+      response = _get_sign(&value_1) ? S21_TOO_SMALL : S21_TOO_LARGE;
+    } else {
+      for (int i = 0; i < 3; ++i) result->bits[i] = tmp_result.bits[i];
+      _set_sign(result, _get_sign(&value_1));
+      _set_scale(result, final_scale);
+    }
+  }
+
+  return response;
 }
