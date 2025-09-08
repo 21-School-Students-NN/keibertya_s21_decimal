@@ -35,21 +35,19 @@ void _init_decimal_zero(s21_decimal *dec) {
 }
 
 int _is_zero(s21_decimal value) {
-    return value.bits[0] == 0 && value.bits[1] == 0 && value.bits[2] == 0;
+  return value.bits[0] == 0 && value.bits[1] == 0 && value.bits[2] == 0;
 }
 
 int _is_equal(s21_decimal value1, s21_decimal value2) {
-    return value1.bits[0] == value2.bits[0] &&
-           value1.bits[1] == value2.bits[1] &&
-           value1.bits[2] == value2.bits[2] &&
-           value1.bits[3] == value2.bits[3];
+  return value1.bits[0] == value2.bits[0] && value1.bits[1] == value2.bits[1] &&
+         value1.bits[2] == value2.bits[2] && value1.bits[3] == value2.bits[3];
 }
 
 void _print_decimal_debug(s21_decimal dec) {
-    printf("Sign: %d, Scale: %d, ", _get_sign(&dec), _get_scale(&dec));
-    printf("Mantissa: 0x%08X%08X%08X", dec.bits[2], dec.bits[1], dec.bits[0]);
-    printf(" Full: [0x%08X %08X %08X %08X]\n", 
-           dec.bits[3], dec.bits[2], dec.bits[1], dec.bits[0]);
+  printf("Sign: %d, Scale: %d, ", _get_sign(&dec), _get_scale(&dec));
+  printf("Mantissa: 0x%08X%08X%08X", dec.bits[2], dec.bits[1], dec.bits[0]);
+  printf(" Full: [0x%08X %08X %08X %08X]\n", dec.bits[3], dec.bits[2],
+         dec.bits[1], dec.bits[0]);
 }
 //======================================================================
 //  Mantissa helpers (96-bit) and normalization
@@ -74,8 +72,9 @@ uint32_t _add_mantissas_96(const s21_decimal *a, const s21_decimal *b,
                            s21_decimal *sum) {
   uint32_t carry = 0;
   for (int i = 0; i < 3; ++i)
-    carry = _add_with_carry_u32(carry, (uint32_t)a->bits[i],
-                                (uint32_t)b->bits[i], (uint32_t *)&sum->bits[i]);
+    carry =
+        _add_with_carry_u32(carry, (uint32_t)a->bits[i], (uint32_t)b->bits[i],
+                            (uint32_t *)&sum->bits[i]);
   return carry;
 }
 
@@ -85,7 +84,8 @@ int _multiply_mantissas_96(const s21_decimal *a, const s21_decimal *b,
   for (int i = 0; i < 3; ++i) {
     uint64_t carry = 0;
     for (int j = 0; j < 3; ++j) {
-      uint64_t prod = (uint64_t)(uint32_t)a->bits[i] * (uint64_t)(uint32_t)b->bits[j];
+      uint64_t prod =
+          (uint64_t)(uint32_t)a->bits[i] * (uint64_t)(uint32_t)b->bits[j];
       uint64_t sum = (uint64_t)out192[i + j] + prod + carry;
       out192[i + j] = (uint32_t)(sum & 0xFFFFFFFFu);
       carry = sum >> 32;
@@ -124,11 +124,14 @@ uint32_t _divide_by_10_with_bank_round(s21_decimal *num, uint32_t carry_in) {
   return quotient[3];
 }
 
-int _normalize_scales_meet(s21_decimal *lower_scale, s21_decimal *higher_scale) {
+int _normalize_scales_meet(s21_decimal *lower_scale,
+                           s21_decimal *higher_scale) {
   s21_decimal *low = lower_scale;
   s21_decimal *high = higher_scale;
   if (_get_scale(low) > _get_scale(high)) {
-    s21_decimal *tmp = low; low = high; high = tmp;
+    s21_decimal *tmp = low;
+    low = high;
+    high = tmp;
   }
   while (_get_scale(low) != _get_scale(high)) {
     // try multiply low by 10 (x2 + x8)
@@ -155,7 +158,7 @@ int _normalize_scales_meet(s21_decimal *lower_scale, s21_decimal *higher_scale) 
     *low = tmp;
     _set_scale(low, _get_scale(low) + 1);
     continue;
-shrink_high:
+  shrink_high:
     if (_get_scale(high) == 0) return S21_ERROR;
     uint32_t new_carry = _divide_by_10_with_bank_round(high, 0);
     (void)new_carry;
@@ -167,7 +170,8 @@ shrink_high:
 int _normalize_and_fit_192_to_96(uint32_t temp192[6], meta_t *scale,
                                  meta_t sign, s21_decimal *result) {
   uint32_t last_digit = 0;
-  while ((temp192[3] || temp192[4] || temp192[5] || *scale > MAX_SCALE) && *scale > 0) {
+  while ((temp192[3] || temp192[4] || temp192[5] || *scale > MAX_SCALE) &&
+         *scale > 0) {
     uint64_t rem = 0;
     for (int i = 5; i >= 0; --i) {
       uint64_t cur = (rem << 32) | temp192[i];

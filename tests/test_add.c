@@ -136,7 +136,7 @@ START_TEST(test_add_regular_rounding) {
 }
 END_TEST
 
-#if ENABLE_EXTENDED_TESTS  // MURK's TESTS
+#ifdef ENABLE_EXTENDED_TESTS  // MURK's TESTS
 
 // Базовое сложение положительных чисел
 START_TEST(test_add_positive_basic) {
