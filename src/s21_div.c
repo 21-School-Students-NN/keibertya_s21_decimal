@@ -59,7 +59,10 @@ int shift_left(s21_decimal *value) {
   uint32_t new_carry;
 
   new_carry = (value->bits[0] >> 31) & 1;
-  value->bits[0] = (value->bits[0] << 1) | carry;
+  value->bits[0] = (value->bits[0] << 1);
+  // if (carry != 0) {
+  //   value->bits[0] |= carry;
+  // }
   carry = new_carry;
 
   new_carry = (value->bits[1] >> 31) & 1;
@@ -77,7 +80,7 @@ void shift_right(s21_decimal *value) {
   uint32_t new_carry;
 
   new_carry = value->bits[2] & 1;
-  value->bits[2] = (value->bits[2] >> 1) | (carry << 31);
+  value->bits[2] = (value->bits[2] >> 1);  // | (carry << 31);
   carry = new_carry;
 
   new_carry = value->bits[1] & 1;
