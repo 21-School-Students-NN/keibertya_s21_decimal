@@ -34,13 +34,44 @@ void _init_decimal_zero(s21_decimal *dec) {
   memset(dec, 0, sizeof(s21_decimal));
 }
 
-int _is_zero(s21_decimal value) {
-  return value.bits[0] == 0 && value.bits[1] == 0 && value.bits[2] == 0;
-}
-
 int _is_equal(s21_decimal value1, s21_decimal value2) {
   return value1.bits[0] == value2.bits[0] && value1.bits[1] == value2.bits[1] &&
          value1.bits[2] == value2.bits[2] && value1.bits[3] == value2.bits[3];
+}
+
+void _bank_round(s21_decimal *value, uint32_t remainder, int scale) {
+  if (remainder > 5) {
+    // Rounding up
+    s21_decimal one = {{1, 0, 0, 0}};
+    _set_scale(&one, scale);
+    _set_sign(&one, _get_sign(value));
+    s21_add(*value, one, value);
+  } else if (remainder == 5) {
+    // Bank rounding: rounding to the nearest even number
+    if (value->bits[0] & 1) {
+      s21_decimal one = {{1, 0, 0, 0}};
+      _set_scale(&one, scale);
+      _set_sign(&one, _get_sign(value));
+      s21_add(*value, one, value);
+    }
+  }
+}
+
+void _subtract_mantissas(s21_decimal value_1, s21_decimal value_2,
+                         s21_decimal *result) {
+  uint64_t diff;
+  uint32_t borrow = 0;
+
+  diff = (uint64_t)value_1.bits[0] - value_2.bits[0] - borrow;
+  result->bits[0] = (uint32_t)diff;
+  borrow = (diff >> 32) ? 1 : 0;
+
+  diff = (uint64_t)value_1.bits[1] - value_2.bits[1] - borrow;
+  result->bits[1] = (uint32_t)diff;
+  borrow = (diff >> 32) ? 1 : 0;
+
+  diff = (uint64_t)value_1.bits[2] - value_2.bits[2] - borrow;
+  result->bits[2] = (uint32_t)diff;
 }
 
 // void _print_decimal_debug(s21_decimal dec) {
@@ -49,6 +80,7 @@ int _is_equal(s21_decimal value1, s21_decimal value2) {
 //   printf(" Full: [0x%08X %08X %08X %08X]\n", dec.bits[3], dec.bits[2],
 //          dec.bits[1], dec.bits[0]);
 // }
+
 //======================================================================
 //  Mantissa helpers (96-bit) and normalization
 //======================================================================
@@ -239,7 +271,7 @@ int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
       if (_get_scale(ptr_high_scale) == 0) {
         status_code = _get_sign(ptr_low_scale) ? S21_TOO_SMALL : S21_TOO_LARGE;
       }
-      // all things around that fnction should be plased inside of it
+      // all things around that function should be plased inside of it
       _divide_and_round(ptr_high_scale, 0);
       _set_scale(ptr_high_scale, _get_scale(ptr_high_scale) - 1);
     }
@@ -370,4 +402,42 @@ int _compare_mantissas(const s21_decimal *value_1, const s21_decimal *value_2) {
     if ((uint32_t)value_1->bits[i] < (uint32_t)value_2->bits[i]) resp = -1;
   }
   return resp;
+}
+
+int _multiply_by_10(s21_decimal *value) {
+  uint64_t temp;
+  uint32_t carry = 0;
+
+  temp = (uint64_t)value->bits[0] * 10 + carry;
+  value->bits[0] = (uint32_t)temp;
+  carry = (uint32_t)(temp >> 32);
+
+  temp = (uint64_t)value->bits[1] * 10 + carry;
+  value->bits[1] = (uint32_t)temp;
+  carry = (uint32_t)(temp >> 32);
+
+  temp = (uint64_t)value->bits[2] * 10 + carry;
+  value->bits[2] = (uint32_t)temp;
+  carry = (uint32_t)(temp >> 32);
+
+  return carry != 0;
+}
+
+// Divide decimal by 10, return the remainder
+uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder) {
+  uint64_t temp;
+
+  temp = ((uint64_t)remainder << 32) | value->bits[2];
+  value->bits[2] = (uint32_t)(temp / 10);
+  remainder = (uint32_t)(temp % 10);
+
+  temp = ((uint64_t)remainder << 32) | value->bits[1];
+  value->bits[1] = (uint32_t)(temp / 10);
+  remainder = (uint32_t)(temp % 10);
+
+  temp = ((uint64_t)remainder << 32) | value->bits[0];
+  value->bits[0] = (uint32_t)(temp / 10);
+  remainder = (uint32_t)(temp % 10);
+
+  return remainder;
 }

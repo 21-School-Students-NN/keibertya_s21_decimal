@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
 
