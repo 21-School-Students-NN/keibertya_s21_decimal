@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
 
@@ -7,7 +9,7 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
 
   // redirect to s21_sub in case of different sign
   if (_get_sign(&value_1) != _get_sign(&value_2)) {
-    s21_decimal *minuend, *subtrahend;
+    const s21_decimal *minuend, *subtrahend;
     if (_get_sign(&value_1) > _get_sign(&value_2)) {
       _set_sign(&value_1, 0);
       minuend = &value_2;

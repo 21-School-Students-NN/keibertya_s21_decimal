@@ -212,4 +212,13 @@ int multiply_96_mantissa(s21_decimal *num);
 void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
                         uint32_t temp_result[6]);
 
+void _bank_round(s21_decimal *value, uint32_t remainder, int scale);
+
+void _subtract_mantissas(s21_decimal value_1, s21_decimal value_2,
+                         s21_decimal *result);
+
+int _multiply_by_10(s21_decimal *value);
+
+uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder);
+
 #endif  // S21_HELPERS_H
