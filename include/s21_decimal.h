@@ -233,8 +233,8 @@ int s21_truncate(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to negate
  * @param result Pointer to store the negated value
  * @return Error code: `0` (OK), `1` (error)
- * @author
- * @date
+ * @author Amfir (s21: tyananai)
+ * @date April 17, 2025
  */
 int s21_negate(s21_decimal value, s21_decimal *result);
 
