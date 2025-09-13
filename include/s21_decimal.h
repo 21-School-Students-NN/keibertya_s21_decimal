@@ -44,8 +44,7 @@ typedef struct {
  * @param value_1 First addend
  * @param value_2 Second addend
  * @param result Pointer to store the sum
- * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division
- * by zero)
+ * @return Error code: `0` (OK), `1` (too large), `2` (too small)
  * @author
  * @date
  */
