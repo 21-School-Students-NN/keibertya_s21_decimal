@@ -223,8 +223,8 @@ int s21_round(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to truncate
  * @param result Pointer to store the truncated value
  * @return Error code: `0` (OK), `1` (error)
- * @author
- * @date
+ * @author Amfir (s21: tyananai)
+ * @date April 17, 2025
  */
 int s21_truncate(s21_decimal value, s21_decimal *result);
 
