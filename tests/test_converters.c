@@ -41,6 +41,7 @@ END_TEST
 
 START_TEST(test_from_float_to_decimal_simple) {
   s21_decimal dst;
+
   float fval = 12.3456f;
   int result = s21_from_float_to_decimal(fval, &dst);
   ck_assert_int_eq(result, 0);  // SUCCESS
@@ -74,10 +75,11 @@ END_TEST
 
 START_TEST(test_from_decimal_to_int_with_fractional_part) {
   s21_decimal src;
+
   src.bits[0] = 123456;  // 123456;
   src.bits[1] = 0;
   src.bits[2] = 0;
-  src.bits[3] = 0x30000;  //(3 << 16);  // scaling 10^-3
+  src.bits[3] = 0x30000;  // scaling 10^-3
   int iresult;
   int result = s21_from_decimal_to_int(src, &iresult);
   ck_assert_int_eq(result, 0);     // SUCCESS
