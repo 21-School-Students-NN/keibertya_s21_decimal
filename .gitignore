@@ -6,3 +6,5 @@ s21_decimal.a
 test
 *.test
 *.log
+
+coverage/
