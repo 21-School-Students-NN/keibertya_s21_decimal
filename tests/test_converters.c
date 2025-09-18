@@ -49,6 +49,21 @@ START_TEST(test_from_float_to_decimal_simple) {
   ck_assert_int_eq(dst.bits[1], 0);
   ck_assert_int_eq(dst.bits[2], 0);
   ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 5);
+  ck_assert_int_eq((dst.bits[3] >> 31) & 0xff, 0);
+}
+END_TEST
+
+START_TEST(test_from_float_to_decimal_simple_negative) {
+  s21_decimal dst;
+
+  float fval = -1.23456e2;
+  int result = s21_from_float_to_decimal(fval, &dst);
+  ck_assert_int_eq(result, 0);  // SUCCESS
+  ck_assert_int_eq(dst.bits[0], 1234560);
+  ck_assert_int_eq(dst.bits[1], 0);
+  ck_assert_int_eq(dst.bits[2], 0);
+  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 4);
+  ck_assert_int_eq((dst.bits[3] >> 31) & 0xff, 1);
 }
 END_TEST
 
@@ -84,6 +99,20 @@ START_TEST(test_from_decimal_to_int_with_fractional_part) {
   int result = s21_from_decimal_to_int(src, &iresult);
   ck_assert_int_eq(result, 0);     // SUCCESS
   ck_assert_int_eq(iresult, 123);  // int value
+}
+END_TEST
+
+START_TEST(test_from_decimal_to_int_with_fractional_part_negative) {
+  s21_decimal src;
+
+  src.bits[0] = 123456;  // 123456;
+  src.bits[1] = 0;
+  src.bits[2] = 0;
+  src.bits[3] = 0x80030000;  // scaling 10^-3 and negative
+  int iresult;
+  int result = s21_from_decimal_to_int(src, &iresult);
+  ck_assert_int_eq(result, 0);      // SUCCESS
+  ck_assert_int_eq(iresult, -123);  // int value
 }
 END_TEST
 
@@ -132,11 +161,11 @@ START_TEST(test_from_decimal_to_float_rounding) {
   src.bits[0] = 123456789;
   src.bits[1] = 0;
   src.bits[2] = 0;
-  src.bits[3] = (8 << 16);
+  src.bits[3] = 0x80080000u;
   float fresult;
   int result = s21_from_decimal_to_float(src, &fresult);
   ck_assert_int_eq(result, 0);  // SUCCESs
-  ck_assert_double_eq_tol(fresult, 1.23456789f, FLT_EPSILON);
+  ck_assert_double_eq_tol(fresult, -1.23456789f, FLT_EPSILON);
 }
 END_TEST
 
@@ -148,8 +177,11 @@ Suite *s21_converters_suite(void) {
   tcase_add_test(tc_core, test_from_int_to_decimal_negative);
   tcase_add_test(tc_core, test_from_int_to_decimal_negative_max);
   tcase_add_test(tc_core, test_from_float_to_decimal_simple);
+  tcase_add_test(tc_core, test_from_float_to_decimal_simple_negative);
   tcase_add_test(tc_core, test_from_float_to_decimal_small_number);
   tcase_add_test(tc_core, test_from_decimal_to_int_no_fractional_part);
+  tcase_add_test(tc_core,
+                 test_from_decimal_to_int_with_fractional_part_negative);
   tcase_add_test(tc_core, test_from_decimal_to_int_with_fractional_part);
   tcase_add_test(tc_core, test_from_decimal_to_int_large_val);
   tcase_add_test(tc_core, test_from_decimal_to_float_whole_number);

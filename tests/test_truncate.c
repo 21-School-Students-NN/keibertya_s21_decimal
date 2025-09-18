@@ -76,7 +76,7 @@ START_TEST(test_truncate_negative_integer) {
 END_TEST
 
 START_TEST(test_truncate_positive_small_fraction_to_zero) {
-  s21_decimal in = make_decimal(9u, 0u, 0u, 1u, 0u);
+  s21_decimal in = make_decimal(69u, 0u, 0u, 2u, 0u);
   s21_decimal out;
   int res = s21_truncate(in, &out);
   ck_assert_int_eq(res, S21_SUCCESS);

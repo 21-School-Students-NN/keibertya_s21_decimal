@@ -84,7 +84,7 @@ int s21_from_decimal_to_float(s21_decimal src, float *dst) {
       if (bit) *dst += (float)pow(2, i);
     }
     int scale = _get_scale(&src);
-    *dst /= (_get_sign(&src) ? -1 : 1) * pow(10, scale);
+    *dst *= (_get_sign(&src) ? -1 : 1) * pow(0.1, scale);
     result = S21_SUCCESS;
   }
   return result;
