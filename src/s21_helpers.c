@@ -98,7 +98,7 @@ void _subtract_mantissas(s21_decimal value_1, s21_decimal value_2,
 //   uint64_t sum = (uint64_t)x + y + (carry_in ? 1u : 0u);
 //   *out = (uint32_t)sum;
 //   return (uint32_t)(sum >> 32);
-// }
+// }meta_t _get_pow_of_two(s21_decimal *dec, unsigned scale)
 
 // uint32_t _add_mantissas_96(const s21_decimal *a, const s21_decimal *b,
 //                            s21_decimal *sum) {
@@ -287,7 +287,6 @@ int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
       *value_1 = *ptr_high_scale;
     }
   }
-
   return status_code;
 }
 
@@ -440,4 +439,14 @@ uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder) {
   remainder = (uint32_t)(temp % 10);
 
   return remainder;
+}
+
+meta_t _get_bit(s21_decimal *dec, unsigned order) {
+  if (order < 32) {
+    return (meta_t)((dec->bits[0] >> order) & 1);
+  } else if (order < 64) {
+    return (meta_t)((dec->bits[1] >> (order - 32)) & 1);
+  } else {
+    return (meta_t)((dec->bits[2] >> (order - 64)) & 1);
+  }
 }

@@ -257,4 +257,14 @@ int _multiply_by_10(s21_decimal *value);
 
 uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder);
 
+/**
+ * @brief Gets single bit from mantissa
+ * @param dec Pointer to the decimal number to initialize
+ * @param order order (from 0 to 95)
+ * @return bit value (0 for positive, 1 for negative) as `meta_t`
+ * @author Anton Gashturi (bernieer)
+ * @date 14.08.2025
+ */
+meta_t _get_bit(s21_decimal *dec, unsigned order) __attribute__((nonnull));
+
 #endif  // S21_HELPERS_H

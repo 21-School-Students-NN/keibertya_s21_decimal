@@ -10,6 +10,7 @@
 int main(void) {
   int number_failed;
   SRunner *sr = srunner_create(s21_helpers_suite());
+  srunner_add_suite(sr, s21_converters_suite());
 
   //  TODO(all): add after comment your suits...
   srunner_add_suite(sr, s21_add_suite());
@@ -17,6 +18,7 @@ int main(void) {
   srunner_add_suite(sr, s21_mul_suite());
   srunner_add_suite(sr, s21_div_suite());
   srunner_add_suite(sr, s21_negate_suite());
+  srunner_add_suite(sr, s21_converters_suite());
   srunner_add_suite(sr, s21_comparison_suite());
   srunner_add_suite(sr, s21_truncate_suite());
 
