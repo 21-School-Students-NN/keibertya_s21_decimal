@@ -13,6 +13,21 @@ START_TEST(test_sub_negative_overflow) {
 }
 END_TEST
 
+/**/
+START_TEST(test_sub_max_scale_num) {
+  s21_decimal a = {{123456, 0, 0, 0x801C0000u}};
+  s21_decimal b = {{5, 0, 0, 0x80190000u}};
+  s21_decimal result;
+  int code = s21_sub(a, b, &result);
+
+  ck_assert_int_eq(code, 0);  // SUCCESS
+  ck_assert_int_eq(result.bits[0], 118456);
+  ck_assert_int_eq(result.bits[1], 0);
+  ck_assert_int_eq(result.bits[2], 0);
+  ck_assert_int_eq(result.bits[3], 0x801C0000);
+}
+END_TEST
+
 START_TEST(test_sub_equal_numbers) {
   s21_decimal a = {{42, 0, 0, 0}};
   s21_decimal b = {{42, 0, 0, 0}};
@@ -146,6 +161,7 @@ Suite *s21_sub_suite() {
   TCase *tc = tcase_create("core");
 
   tcase_add_test(tc, test_sub_negative_overflow);
+  tcase_add_test(tc, test_sub_max_scale_num);
   tcase_add_test(tc, test_sub_equal_numbers);
   tcase_add_test(tc, test_sub_zero);
   tcase_add_test(tc, test_sub_negative_result);
