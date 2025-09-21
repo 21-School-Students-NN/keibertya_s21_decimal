@@ -204,6 +204,18 @@ START_TEST(test_floor_positive_exact_half) {
 }
 END_TEST
 
+START_TEST(test_floor_negative_large_fraction_to_minus145) {
+  s21_decimal in = make_decimal(14500u, 0u, 0u, 2u, 1u);
+  s21_decimal out;
+  int rc = s21_floor(in, &out);
+  ck_assert_int_eq(rc, S21_SUCCESS);
+  s21_decimal expected = make_decimal(145u, 0u, 0u, 0u, 1u);
+  assert_decimal_eq(out, expected);
+  assert_scale_zero(&out);
+  ck_assert_uint_eq(get_sign(&out), 1u);
+}
+END_TEST
+
 Suite *s21_floor_suite(void) {
   Suite *s = suite_create("floor");
   TCase *tc_core = tcase_create("Core");
@@ -225,6 +237,7 @@ Suite *s21_floor_suite(void) {
   tcase_add_test(tc_core, test_floor_minimum_no_scale);
   tcase_add_test(tc_core, test_floor_negative_exact_half);
   tcase_add_test(tc_core, test_floor_positive_exact_half);
+  tcase_add_test(tc_core, test_floor_negative_large_fraction_to_minus145);
 
   suite_add_tcase(s, tc_core);
   return s;
