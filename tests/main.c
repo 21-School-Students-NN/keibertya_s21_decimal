@@ -18,6 +18,7 @@ int main(void) {
   srunner_add_suite(sr, s21_mul_suite());
   srunner_add_suite(sr, s21_div_suite());
   srunner_add_suite(sr, s21_negate_suite());
+  srunner_add_suite(sr, s21_floor_suite());
   srunner_add_suite(sr, s21_converters_suite());
   srunner_add_suite(sr, s21_comparison_suite());
   srunner_add_suite(sr, s21_truncate_suite());
