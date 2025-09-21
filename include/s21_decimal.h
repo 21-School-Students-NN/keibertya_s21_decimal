@@ -44,8 +44,7 @@ typedef struct {
  * @param value_1 First addend
  * @param value_2 Second addend
  * @param result Pointer to store the sum
- * @return Error code: `0` (OK), `1` (too large), `2` (too small), `3` (division
- * by zero)
+ * @return Error code: `0` (OK), `1` (too large), `2` (too small)
  * @author
  * @date
  */
@@ -160,8 +159,8 @@ int s21_is_not_equal(s21_decimal value_1, s21_decimal value_2);
  * @param src Integer to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 11 2025
  */
 int s21_from_int_to_decimal(int src, s21_decimal *dst);
 
@@ -170,8 +169,8 @@ int s21_from_int_to_decimal(int src, s21_decimal *dst);
  * @param src Float to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 13 2025
  */
 int s21_from_float_to_decimal(float src, s21_decimal *dst);
 
@@ -180,8 +179,8 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst);
  * @param src Decimal to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 14 2025
  */
 int s21_from_decimal_to_int(s21_decimal src, int *dst);
 
@@ -190,8 +189,8 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst);
  * @param src Decimal to convert
  * @param dst Pointer to store the result
  * @return Error code: `0` (OK), `1` (conversion error)
- * @author
- * @date
+ * @author Anton Gashturi (aka bernieer)
+ * @date Aug 14 2025
  */
 int s21_from_decimal_to_float(s21_decimal src, float *dst);
 
@@ -224,8 +223,8 @@ int s21_round(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to truncate
  * @param result Pointer to store the truncated value
  * @return Error code: `0` (OK), `1` (error)
- * @author
- * @date
+ * @author Amfir (s21: tyananai)
+ * @date April 17, 2025
  */
 int s21_truncate(s21_decimal value, s21_decimal *result);
 
@@ -234,8 +233,8 @@ int s21_truncate(s21_decimal value, s21_decimal *result);
  * @param value Decimal number to negate
  * @param result Pointer to store the negated value
  * @return Error code: `0` (OK), `1` (error)
- * @author
- * @date
+ * @author Amfir (s21: tyananai)
+ * @date April 17, 2025
  */
 int s21_negate(s21_decimal value, s21_decimal *result);
 
