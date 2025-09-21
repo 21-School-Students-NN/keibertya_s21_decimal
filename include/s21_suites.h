@@ -5,6 +5,7 @@
 
 // TODO: don't forget to add new suits here...
 Suite *s21_helpers_suite(void);
+Suite *s21_round_suite(void);
 Suite *s21_truncate_suite(void);
 Suite *s21_add_suite(void);
 Suite *s21_sub_suite(void);

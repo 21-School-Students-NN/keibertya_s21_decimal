@@ -4,20 +4,20 @@
 
 // ---------- is_less ----------
 START_TEST(test_is_less_positive) {
-  s21_decimal a = {{5, 0, 0, 0}};   // 5
-  s21_decimal b = {{10, 0, 0, 0}};  // 10
+  s21_decimal a = {{5, 0, 0, 0}};
+  s21_decimal b = {{10, 0, 0, 0}};
   ck_assert_int_eq(s21_is_less(a, b), 1);
   ck_assert_int_eq(s21_is_less(b, a), 0);
 }
 END_TEST
 
 START_TEST(test_is_less_negative) {
-  s21_decimal a = {{5, 0, 0, 0}};  // -5
+  s21_decimal a = {{5, 0, 0, 0}};
   _set_sign(&a, 1);
-  s21_decimal b = {{10, 0, 0, 0}};  // -10
+  s21_decimal b = {{10, 0, 0, 0}};
   _set_sign(&b, 1);
-  ck_assert_int_eq(s21_is_less(a, b), 0);  // -5 < -10 ? нет
-  ck_assert_int_eq(s21_is_less(b, a), 1);  // -10 < -5 ? да
+  ck_assert_int_eq(s21_is_less(a, b), 0);
+  ck_assert_int_eq(s21_is_less(b, a), 1);
 }
 END_TEST
 
@@ -41,8 +41,8 @@ END_TEST
 START_TEST(test_is_equal_scale) {
   s21_decimal a = {{123, 0, 0, 0}};
   s21_decimal b = {{123, 0, 0, 0}};
-  _set_scale(&b, 2);  // 1.23
-  _set_scale(&a, 2);  // 1.23
+  _set_scale(&b, 2);
+  _set_scale(&a, 2);
   ck_assert_int_eq(s21_is_equal(a, b), 1);
 }
 END_TEST

@@ -214,7 +214,7 @@ int s21_floor(s21_decimal value, s21_decimal *result);
  * @param result Pointer to store the rounded value
  * @return Error code: `0` (OK), `1` (error)
  * @author Amfir (s21: tyananai)
- * @date April 24, 2025
+ * @date April 18, 2025
  */
 int s21_round(s21_decimal value, s21_decimal *result);
 

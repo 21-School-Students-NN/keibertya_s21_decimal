@@ -22,6 +22,7 @@ int main(void) {
   srunner_add_suite(sr, s21_converters_suite());
   srunner_add_suite(sr, s21_comparison_suite());
   srunner_add_suite(sr, s21_truncate_suite());
+  srunner_add_suite(sr, s21_round_suite());
 
   //  Check for CK_RUN_SUITE and set a custom log file
   const char *suite = getenv("CK_RUN_SUITE");
