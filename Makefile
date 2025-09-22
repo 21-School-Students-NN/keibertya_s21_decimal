@@ -133,7 +133,7 @@ $(OBJ_BUILD_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c $(FLAG_FILE) | $(OBJ_BUILD_DIR)
 # =============================================================================
 # Testing Rules
 # =============================================================================
-test: clean $(TST_OBJECTS) $(LIBRARY)
+test: $(TST_OBJECTS) $(LIBRARY)
 	$(info Compile tests and running with valgrind...)
 	@$(CC) $(CFLAGS) $(TST_OBJECTS) $(LIBRARY) $(TST_FLAG) -o $@
 	@CK_FORK=no valgrind --tool=memcheck --leak-check=full --track-origins=yes ./test
