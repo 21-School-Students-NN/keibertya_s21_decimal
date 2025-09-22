@@ -66,12 +66,7 @@ int s21_round(s21_decimal value, s21_decimal *result) {
     } else {
       *result = value;
       int reminder = 0;
-      _set_sign(result, 0);
-
-      while (scale > 0) {
-        reminder = _divide_by_10(result, 0);
-        scale--;
-      }
+      for (int i = 0; i < scale; i++) reminder = _divide_by_10(result, 0);
       _set_scale(result, 0);
       if (reminder >= 5) {
         s21_decimal one = {{1, 0, 0, 0}};
