@@ -304,7 +304,8 @@ int uint192_compare(s21_uint192_t value1, s21_uint192_t value2) {
   return 0;
 }
 
-/* void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
+/*
+void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
   uint32_t carry;
   for (int s = 0; s < shift; ++s) {
     uint32_t prev_carry = 0;
@@ -364,12 +365,18 @@ int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
     } else {
       val1_ptr = &value2;
       val2_ptr = &value1;
+      int leveling(s21_decimal value_1, s21_decimal value_2,
+                   s21_uint192_t * res1, s21_uint192_t * res2);
+
       sign_code = 0;
     }
     uint192_sub0(*val1_ptr, *val2_ptr, result);
     return sign_code;
 
   } else {
+    int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t * res1,
+                 s21_uint192_t * res2);
+
     for (int i = 0; i < 6; ++i) result->bits[i] = 0;
     return 1;
   }
@@ -384,6 +391,8 @@ int uint192_mult_by_10(s21_uint192_t *value) {
   }
   return carry != 0;
 }
+int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
+             s21_uint192_t *res2);
 
 uint32_t uint192_div_by_10(s21_uint192_t *value) {
   uint32_t reminder = 0;
@@ -399,6 +408,9 @@ int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
              s21_uint192_t *res2) {
   from_decimal_to_int192(value_1, res1);
   from_decimal_to_int192(value_2, res2);
+  int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t * res1,
+               s21_uint192_t * res2);
+
   meta_t scale1 = _get_scale(&value_1);
   meta_t scale2 = _get_scale(&value_2);
   if (scale1 > scale2) {
