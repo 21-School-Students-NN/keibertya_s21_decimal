@@ -273,6 +273,8 @@ meta_t _get_bit(s21_decimal *dec, unsigned order) __attribute__((nonnull));
 
 void from_decimal_to_int192(s21_decimal value, s21_uint192_t *result);
 
+int uint192_compare(s21_uint192_t value1, s21_uint192_t value2);
+
 void uint192_shift_left(s21_uint192_t *value, uint32_t shift);
 
 void uint192_shift_right(s21_uint192_t *value, uint32_t shift);
@@ -280,12 +282,18 @@ void uint192_shift_right(s21_uint192_t *value, uint32_t shift);
 uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
                      s21_uint192_t *result);
 
+int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
+                s21_uint192_t *result);
+
+int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
+             s21_uint192_t *res2);
+
 int uint192_mult_by_10(s21_uint192_t *value1);
 
-uint32_t uint192__div_by_10(s21_uint192_t *value);
+uint32_t uint192_div_by_10(s21_uint192_t *value);
 
-int leveling_and_add(s21_decimal value_1, s21_decimal value_2,
-                     s21_uint192_t *res1, s21_uint192_t *res2);
+int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
+             s21_uint192_t *res2);
 
 int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale, s21_decimal *dst);
 

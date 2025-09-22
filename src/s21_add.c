@@ -59,7 +59,8 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     s21_uint192_t res2;
     from_decimal_to_int192(value_1, &res1);
     from_decimal_to_int192(value_2, &res2);
-    meta_t scale = leveling_and_add(value_1, value_2, &res1, &res2);
+    meta_t scale = leveling(value_1, value_2, &res1, &res2);
+    uint192_add(res1, res2, &res1);
     response = from_uint192_to_decimal(&res1, scale, result);
     if (response == S21_TOO_LARGE && _get_sign(&value_1))
       response = S21_TOO_SMALL;

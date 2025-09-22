@@ -296,6 +296,14 @@ void from_decimal_to_int192(s21_decimal value, s21_uint192_t *result) {
   for (int i = 3; i < 6; i++) result->bits[i] = 0;
 }
 
+int uint192_compare(s21_uint192_t value1, s21_uint192_t value2) {
+  for (int i = 5; i >= 0; --i) {
+    if (value1.bits[i] > value2.bits[i]) return 1;
+    if (value1.bits[i] < value2.bits[i]) return -1;
+  }
+  return 0;
+}
+
 /* void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
   uint32_t carry;
   for (int s = 0; s < shift; ++s) {
@@ -331,6 +339,42 @@ uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
   return carry;
 }
 
+void uint192_sub0(s21_uint192_t value1, s21_uint192_t value2,
+                  s21_uint192_t *result) {
+  uint64_t borrow = 0;
+  for (int i = 0; i < 3; i++) {
+    uint64_t diff = (uint64_t)value1.bits[i] - value2.bits[i] - borrow;
+    result->bits[i] = (uint32_t)diff;
+
+    borrow = (diff >> 63) & 1;
+  }
+}
+
+int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
+                s21_uint192_t *result) {
+  int comp = uint192_compare(value1, value2);
+  if (comp) {
+    s21_uint192_t const *val1_ptr;
+    s21_uint192_t const *val2_ptr;
+    int sign_code = 1;
+
+    if (comp > 0) {
+      val1_ptr = &value1;
+      val2_ptr = &value2;
+    } else {
+      val1_ptr = &value2;
+      val2_ptr = &value1;
+      sign_code = 0;
+    }
+    uint192_sub0(*val1_ptr, *val2_ptr, result);
+    return sign_code;
+
+  } else {
+    for (int i = 0; i < 6; ++i) result->bits[i] = 0;
+    return 1;
+  }
+}
+
 int uint192_mult_by_10(s21_uint192_t *value) {
   uint32_t carry = 0;
   for (int i = 0; i < 6; ++i) {
@@ -341,7 +385,7 @@ int uint192_mult_by_10(s21_uint192_t *value) {
   return carry != 0;
 }
 
-uint32_t uint192__div_by_10(s21_uint192_t *value) {
+uint32_t uint192_div_by_10(s21_uint192_t *value) {
   uint32_t reminder = 0;
   for (int i = 5; i >= 0; --i) {
     uint64_t temp = ((uint64_t)reminder << 32) | value->bits[i];
@@ -351,8 +395,8 @@ uint32_t uint192__div_by_10(s21_uint192_t *value) {
   return reminder;
 }
 
-int leveling_and_add(s21_decimal value_1, s21_decimal value_2,
-                     s21_uint192_t *res1, s21_uint192_t *res2) {
+int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
+             s21_uint192_t *res2) {
   from_decimal_to_int192(value_1, res1);
   from_decimal_to_int192(value_2, res2);
   meta_t scale1 = _get_scale(&value_1);
@@ -368,7 +412,6 @@ int leveling_and_add(s21_decimal value_1, s21_decimal value_2,
       scale1++;
     }
   }
-  uint192_add(*res1, *res2, res1);
   return scale1;
 }
 
@@ -378,7 +421,7 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
   if (src && dst) {
     while (src->bits[3] | src->bits[4] | src->bits[5]) {
       if (scale == 0) return S21_TOO_LARGE;
-      uint32_t rem = uint192__div_by_10(src);
+      uint32_t rem = uint192_div_by_10(src);
       if (rem > 5 || (rem == 5 && src->bits[0] << 31)) {
         s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
         uint192_add(*src, one, src);
