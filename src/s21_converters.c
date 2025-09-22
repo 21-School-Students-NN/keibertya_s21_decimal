@@ -32,6 +32,7 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
   int result = S21_ERROR;
   if (dst) {
     _init_decimal_zero(dst);
+    if (src == 0) return S21_SUCCESS;
     float abs_src = fabs(src);
     if (abs_src > 1e-28 && abs_src < MAX_DEC_VALUE) {
       char number[20];
