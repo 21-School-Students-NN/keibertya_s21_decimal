@@ -93,7 +93,7 @@ int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
   s21_decimal tmp_value_1 = *value_1;
   s21_decimal tmp_value_2 = *value_2;
 
-  // find decimal withh lowest and highest scale
+  // find decimal with lowest and highest scale
   int order = (_get_scale(value_1) < _get_scale(value_2));
   if (order) {
     ptr_low_scale = &tmp_value_1;
@@ -289,4 +289,107 @@ meta_t _get_bit(s21_decimal *dec, unsigned order) {
   } else {
     return (meta_t)((dec->bits[2] >> (order - 64)) & 1);
   }
+}
+
+void from_decimal_to_int192(s21_decimal value, s21_uint192_t *result) {
+  for (int i = 0; i < 3; i++) result->bits[i] = value.bits[i];
+  for (int i = 3; i < 6; i++) result->bits[i] = 0;
+}
+
+/* void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
+  uint32_t carry;
+  for (int s = 0; s < shift; ++s) {
+    uint32_t prev_carry = 0;
+    for (int i = 0; i < 6; ++i) {
+      carry = value->bits[i] >> 31;
+      value->bits[i] = (value->bits[i] << 1) | prev_carry;
+      prev_carry = carry;
+    }
+  }
+}
+
+void uint192_shift_right(s21_uint192_t *value, uint32_t shift) {
+  uint32_t carry;
+  for (int s = 0; s < shift; ++s) {
+    uint32_t prev_carry = 0;
+    for (int i = 5; i >= 0; --i) {
+      carry = (value->bits[i] & 1) << 31;
+      value->bits[i] = (value->bits[i] >> 1) | prev_carry << 31;
+      prev_carry = carry;
+    }
+  }
+}*/
+
+uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
+                     s21_uint192_t *result) {
+  uint64_t carry = 0;
+  for (int i = 0; i < 6; ++i) {
+    uint64_t res = (uint64_t)value1.bits[i] + (uint64_t)value2.bits[i] + carry;
+    result->bits[i] = (uint32_t)res;
+    carry = res >> 32;
+  }
+  return carry;
+}
+
+int uint192_mult_by_10(s21_uint192_t *value) {
+  uint32_t carry = 0;
+  for (int i = 0; i < 6; ++i) {
+    uint64_t temp = (uint64_t)value->bits[i] * 10 + carry;
+    value->bits[i] = (uint32_t)temp;
+    carry = (uint32_t)(temp >> 32);
+  }
+  return carry != 0;
+}
+
+uint32_t uint192__div_by_10(s21_uint192_t *value) {
+  uint32_t reminder = 0;
+  for (int i = 5; i >= 0; --i) {
+    uint64_t temp = ((uint64_t)reminder << 32) | value->bits[i];
+    value->bits[i] = (uint32_t)(temp / 10);
+    reminder = (uint32_t)(temp % 10);
+  }
+  return reminder;
+}
+
+int leveling_and_add(s21_decimal value_1, s21_decimal value_2,
+                     s21_uint192_t *res1, s21_uint192_t *res2) {
+  from_decimal_to_int192(value_1, res1);
+  from_decimal_to_int192(value_2, res2);
+  meta_t scale1 = _get_scale(&value_1);
+  meta_t scale2 = _get_scale(&value_2);
+  if (scale1 > scale2) {
+    while (scale2 < scale1) {
+      uint192_mult_by_10(res2);
+      scale2++;
+    }
+  } else if (scale1 < scale2) {
+    while (scale1 < scale2) {
+      uint192_mult_by_10(res1);
+      scale1++;
+    }
+  }
+  uint192_add(*res1, *res2, res1);
+  return scale1;
+}
+
+int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
+                            s21_decimal *dst) {
+  int code = S21_ERROR;
+  if (src && dst) {
+    while (src->bits[3] | src->bits[4] | src->bits[5]) {
+      if (scale == 0) return S21_TOO_LARGE;
+      uint32_t rem = uint192__div_by_10(src);
+      if (rem > 5 || (rem == 5 && src->bits[0] << 31)) {
+        s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
+        uint192_add(*src, one, src);
+      }
+      scale--;
+    }
+    for (int i = 0; i < 3; ++i) {
+      dst->bits[i] = src->bits[i];
+    }
+    _set_scale(dst, scale);
+    code = S21_SUCCESS;
+  }
+  return code;
 }
