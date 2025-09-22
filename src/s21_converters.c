@@ -43,13 +43,17 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
         int_val += (*ptr - '0') * i;
         ptr++;
       }
-      s21_from_int_to_decimal(int_val, dst);
+      dst->bits[0] = int_val;
       short exp = strtol(ptr + 1, NULL, 10) - 6;
       if (exp > 0) {
-        s21_mul(*dst, ten_pows[exp], dst);
+        for (int e = 0; e < exp; ++e) {
+          _multiply_by_10(dst);
+        }
       } else if (exp < -28) {
+        for (int e = exp; e < -28; ++e) {
+          dst->bits[0] /= 10;
+        }
         dst->bits[3] = (int)(28) << 16;
-        s21_div(*dst, ten_pows[-28 - exp], dst);
       } else {
         dst->bits[3] = (int)(-exp) << 16;
       }
@@ -67,7 +71,11 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst) {
     *dst = 0;
     if (s21_truncate(src, &src) == S21_SUCCESS) {
       int scale = _get_scale(&src);
-      if (scale) s21_div(src, ten_pows[scale], &src);
+      if (scale) {
+        for (int e = 0; e < scale; ++e) {
+          _divide_by_10(&src, 0);
+        }
+      }
       *dst = (_get_sign(&src) ? -1 : 1) * src.bits[0];
       result = S21_SUCCESS;
     }
