@@ -75,6 +75,32 @@ START_TEST(test_from_float_to_decimal_small_number) {
 }
 END_TEST
 
+START_TEST(test_from_float_to_decimal_small_number_2) {
+  s21_decimal dst;
+  float fval = -1.23456e-26f;
+  int result = s21_from_float_to_decimal(fval, &dst);
+  ck_assert_int_eq(result, 0);  // SUCCESS
+  ck_assert_int_eq(dst.bits[0], 123);
+  ck_assert_int_eq(dst.bits[1], 0);
+  ck_assert_int_eq(dst.bits[2], 0);
+  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 28);
+  ck_assert_int_eq((dst.bits[3] >> 31) & 0xff, 1);
+}
+END_TEST
+
+START_TEST(test_from_float_to_decimal_large_number) {
+  s21_decimal dst;
+  float fval = -1.23456e9f;
+  int result = s21_from_float_to_decimal(fval, &dst);
+  ck_assert_int_eq(result, 0);  // SUCCESS
+  ck_assert_int_eq(dst.bits[0], 1234560000);
+  ck_assert_int_eq(dst.bits[1], 0);
+  ck_assert_int_eq(dst.bits[2], 0);
+  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 0);
+  ck_assert_int_eq((dst.bits[3] >> 31) & 0xff, 1);
+}
+END_TEST
+
 START_TEST(test_from_decimal_to_int_no_fractional_part) {
   s21_decimal src;
   src.bits[0] = 12345;
@@ -179,6 +205,8 @@ Suite *s21_converters_suite(void) {
   tcase_add_test(tc_core, test_from_float_to_decimal_simple);
   tcase_add_test(tc_core, test_from_float_to_decimal_simple_negative);
   tcase_add_test(tc_core, test_from_float_to_decimal_small_number);
+  tcase_add_test(tc_core, test_from_float_to_decimal_small_number_2);
+  tcase_add_test(tc_core, test_from_float_to_decimal_large_number);
   tcase_add_test(tc_core, test_from_decimal_to_int_no_fractional_part);
   tcase_add_test(tc_core,
                  test_from_decimal_to_int_with_fractional_part_negative);
