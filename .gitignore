@@ -1,7 +1,6 @@
 # exclude all object files
 build/obj/*
 build/test/*
-s21_decimal.h
 s21_decimal.a
 test
 *.test
