@@ -95,7 +95,7 @@ int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
   return status_code;
 }
 
-/**/ int _divide_and_round(s21_decimal *dec, uint32_t carry) {
+int _divide_and_round(s21_decimal *dec, uint32_t carry) {
   const uint32_t dividend[4] = {dec->bits[0], dec->bits[1], dec->bits[2],
                                 carry};
   uint32_t quotient[4] = {0, 0, 0, 0};

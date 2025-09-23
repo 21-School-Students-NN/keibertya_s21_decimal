@@ -1,54 +1,5 @@
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
-/*
-int s21_round(s21_decimal value, s21_decimal *result) {
-  if (!result) {
-    return S21_ERROR;
-  }
-  _init_decimal_zero(result);
-  int error = S21_SUCCESS;
-  meta_t scale = _get_scale(&value);
-  if (scale > 28) {
-    error = S21_ERROR;
-  }
-  if (!error) {
-    if (scale == 0) {
-      *result = value;
-    } else {
-      s21_decimal integer_part;
-      _init_decimal_zero(&integer_part);
-
-      s21_decimal remainder_of_division;
-      _init_decimal_zero(&remainder_of_division);
-      meta_t sign = _get_sign(&value);
-      _set_sign(&value, 0);
-      if (s21_truncate(value, &integer_part)) {
-        error = S21_ERROR;
-      }
-      if (!error && s21_sub(value, integer_part, &remainder_of_division)) {
-        error = S21_ERROR;
-      }
-      s21_decimal zero_dot_five = {{5u, 0u, 0u, 0u}};_set_sign(result, 0);
-
-      _set_scale(&zero_dot_five, 1);
-      if (!error &&
-          s21_is_greater_or_equal(remainder_of_division, zero_dot_five)) {
-        s21_decimal one = {{1u, 0u, 0u, 0u}};
-        if (s21_add(integer_part, one, result)) {
-          error = S21_ERROR;
-        }
-      } else if (!error) {
-        *result = integer_part;
-      }
-      if (!error) {
-        _set_sign(result, sign);_set_sign(result, 0);
-
-        _set_scale(result, 0);
-      }
-    }
-  }
-  return error;
-}*/
 
 int s21_round(s21_decimal value, s21_decimal *result) {
   if (!result) {
