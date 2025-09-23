@@ -229,6 +229,127 @@ START_TEST(test_div_edge_case_4) {
   ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
 }
 END_TEST
+
+/*
+  MORE AND MORE
+*/
+START_TEST(test_div_edge_case_5) {
+  s21_decimal a = {{123, 0, 0, 0}};
+  s21_decimal b = {{9, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+
+  int res_flag = s21_div(a, b, &result);
+  // 13.666666666666666666666666667
+
+  s21_decimal expected = {{1655351979, 2283897664, 740871484, 0}};
+  _set_scale(&expected, 27);
+  ck_assert_int_eq(res_flag, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(expected, result), 1);
+}
+
+START_TEST(test_div_edge_case_6) {
+  s21_decimal a = {{2582, 0, 0, 0}};
+  s21_decimal b = {{13, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+
+  int res_flag = s21_div(a, b, &result);
+
+  s21_decimal expected = {{2508839070, 1912206080, 1076696157, 0}};
+  _set_scale(&expected, 26);
+  ck_assert_int_eq(res_flag, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(expected, result), 1);
+}
+
+START_TEST(test_div_edge_case_7) {
+  s21_decimal a = {{200, 0, 0, 0}};
+  s21_decimal b = {{5, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&b, 25);
+
+  int res_flag = s21_div(a, b, &result);
+  // res = 40 * 10^25, scale = 0
+  // 10100101011011111010010110111001100100000001100110100101110010000000000000000000000000000_2
+
+  s21_decimal expected = {{2415919104, 1931490123, 21684043, 0}};
+  ck_assert_int_eq(res_flag, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(expected, result), 1);
+}
+
+START_TEST(test_div_edge_case_8) {
+  s21_decimal a = {{0xffffffff, 0, 0, 0}};
+  s21_decimal b = {{2, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&b, 28);
+
+  int res_flag = s21_div(a, b, &result);
+
+  ck_assert_int_eq(res_flag, S21_TOO_LARGE);
+}
+
+START_TEST(test_div_edge_case_9) {
+  s21_decimal a = {{0xffffffff, 0, 0, 0}};
+  s21_decimal b = {{2, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&b, 28);
+  _set_sign(&b, 1);
+
+  int res_flag = s21_div(a, b, &result);
+
+  ck_assert_int_eq(res_flag, S21_TOO_SMALL);
+}
+
+START_TEST(test_div_edge_case_10) {
+  s21_decimal a = {{0, 0, 2147483648, 0}};  // 2^95
+  s21_decimal b = {{5, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&b, 1);  // b = 2^-1
+
+  int res_flag = s21_div(a, b, &result);  // res = 2^96 - overflow
+
+  ck_assert_int_eq(res_flag, S21_TOO_LARGE);
+}
+
+START_TEST(test_div_edge_case_11) {
+  s21_decimal a = {{123, 0, 0, 0}};
+  s21_decimal b = {{8, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&a, 26);
+
+  s21_decimal expected = {{1538, 0, 0, 0}};  // 1*10^-29 -> res = 0
+  _set_scale(&expected, 28);
+  int res_flag = s21_div(a, b, &result);
+
+  ck_assert_int_eq(res_flag, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(expected, result), 1);
+}
+
+START_TEST(test_div_edge_case_12) {
+  s21_decimal a = {{123, 0, 0, 0}};
+  s21_decimal b = {{8, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&a, 27);
+
+  s21_decimal expected = {{154, 0, 0, 0}};  // 1*10^-29 -> res = 0
+  _set_scale(&expected, 28);
+  int res_flag = s21_div(a, b, &result);
+
+  ck_assert_int_eq(res_flag, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(expected, result), 1);
+}
+
+START_TEST(test_div_edge_case_13) {
+  s21_decimal a = {{123, 0, 0, 0}};
+  s21_decimal b = {{800, 0, 0, 0}};
+  s21_decimal result = {{0, 0, 0, 0}};
+  _set_scale(&a, 27);
+
+  s21_decimal expected = {{2, 0, 0, 0}};  // 1*10^-29 -> res = 0
+  _set_scale(&expected, 28);
+  int res_flag = s21_div(a, b, &result);
+
+  ck_assert_int_eq(res_flag, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(expected, result), 1);
+}
 #endif
 
 Suite *s21_div_suite() {
@@ -254,6 +375,16 @@ Suite *s21_div_suite() {
   tcase_add_test(tc_extended, test_div_edge_case_2);
   tcase_add_test(tc_extended, test_div_edge_case_3);
   tcase_add_test(tc_extended, test_div_edge_case_4);
+
+  tcase_add_test(tc_extended, test_div_edge_case_5);
+  tcase_add_test(tc_extended, test_div_edge_case_6);
+  tcase_add_test(tc_extended, test_div_edge_case_7);
+  tcase_add_test(tc_extended, test_div_edge_case_8);
+  tcase_add_test(tc_extended, test_div_edge_case_9);
+  tcase_add_test(tc_extended, test_div_edge_case_10);
+  tcase_add_test(tc_extended, test_div_edge_case_11);
+  tcase_add_test(tc_extended, test_div_edge_case_12);
+  tcase_add_test(tc_extended, test_div_edge_case_13);
 
   suite_add_tcase(ps, tc_extended);
 #endif
