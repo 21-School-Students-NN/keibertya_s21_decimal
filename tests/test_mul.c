@@ -93,8 +93,21 @@ START_TEST(test_mul_scale_overflow) {
 }
 END_TEST
 
+#ifdef ENABLE_EXTENDED_TESTS
+START_TEST(test_mul_edge_case_1) {
+  // 0.4922816251426433759354395033
+  s21_decimal value_1 = {{0xe1999999, 0xba2818e2, 0x0fe80ee3, 0x1c0000}};
+  // 0.0000000000000000000000000001
+  s21_decimal value_2 = {{0x1, 0x0, 0x0, 0x1c0000}};
+  s21_decimal result = {{0}};
+  int s21_code_return = s21_mul(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
+}
+END_TEST
+#endif
+
 Suite* s21_mul_suite(void) {
-  Suite* s = suite_create("mul");
+  Suite* ps = suite_create("mul");
   TCase* tc = tcase_create("core");
 
   tcase_add_test(tc, test_mul_basic_positive);
@@ -105,6 +118,14 @@ Suite* s21_mul_suite(void) {
   tcase_add_test(tc, test_mul_overflow);
   tcase_add_test(tc, test_mul_scale_overflow);
 
-  suite_add_tcase(s, tc);
-  return s;
+#ifdef ENABLE_EXTENDED_TESTS
+  TCase* tc_extended = tcase_create("extended");
+
+  tcase_add_test(tc_extended, test_mul_edge_case_1);
+
+  suite_add_tcase(ps, tc_extended);
+#endif
+
+  suite_add_tcase(ps, tc);
+  return ps;
 }
