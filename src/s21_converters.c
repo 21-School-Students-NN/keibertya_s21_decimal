@@ -35,15 +35,18 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
     if (src == 0) return S21_SUCCESS;
     float abs_src = fabs(src);
     if (abs_src > 1e-28 && abs_src <= MAX_DEC_VALUE) {
-      char number[20];
-      sprintf(number, "%.6E", abs_src);
+      char number[24];
+      sprintf(number, "%.7E", abs_src);
       int int_val = 0;
       char *ptr = number;
-      for (int i = 1000000; i >= 1; i /= 10) {
+      for (int i = 10000000; i >= 1; i /= 10) {
         if (*ptr == '.') ptr++;
         int_val += (*ptr - '0') * i;
         ptr++;
       }
+      int rem = int_val % 10;
+      int_val /= 10;
+      if (rem >= 5 || (rem == 5 && (int_val & 1))) int_val++;
       dst->bits[0] = int_val;
       short exp = strtol(ptr + 1, NULL, 10) - 6;
       if (exp > 0) {
@@ -51,9 +54,12 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
           _multiply_by_10(dst);
         }
       } else if (exp < -28) {
-        for (int e = exp; e < -28; ++e) {
+        for (int e = exp; e < -29; ++e) {
           dst->bits[0] /= 10;
         }
+        rem = dst->bits[0] % 10;
+        dst->bits[0] /= 10;
+        if (rem >= 5 || (rem == 5 && (dst->bits[0] & 1))) dst->bits[0]++;
         dst->bits[3] = (int)(28) << 16;
       } else {
         dst->bits[3] = (int)(-exp) << 16;

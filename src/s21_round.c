@@ -19,7 +19,7 @@ int s21_round(s21_decimal value, s21_decimal *result) {
       int reminder = 0;
       for (int i = 0; i < scale; i++) reminder = _divide_by_10(result, 0);
       _set_scale(result, 0);
-      if (reminder >= 5) {
+      if (reminder > 5 || (reminder == 5 && (result->bits[0] & 1))) {
         s21_decimal one = {{1, 0, 0, 0}};
         _set_sign(&one, _get_sign(result));
         error = s21_add(*result, one, result);
