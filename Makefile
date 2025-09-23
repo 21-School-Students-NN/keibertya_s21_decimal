@@ -72,7 +72,6 @@ TST_OBJECTS		=		$(patsubst $(TST_SOURCE_DIR)/%.c, $(TST_BUILD_DIR)/%.o, $(TST_SO
 # Main Targets
 # =============================================================================
 LIBRARY			::=		s21_decimal.a
-HEADER			::=		s21_decimal.h
 
 .PHONY: all debug release style_format style_check gcov_report clean rebuild gdb help
 
@@ -96,7 +95,7 @@ endif
 # =============================================================================
 # All(general) and Help targets
 # =============================================================================
-all: style_check test
+all: ${LIBRARY}
 
 help:
 	@printf "TARGETS:\n"
@@ -121,7 +120,7 @@ help:
 # =============================================================================
 # Build Rules
 # =============================================================================
-$(LIBRARY): $(LIB_OBJECTS) $(REBUILD) ./$(HEADER)
+$(LIBRARY): $(LIB_OBJECTS) $(REBUILD)
 	$(info Assembling all together to static lib...)
 	@ar rcs $@ $(LIB_OBJECTS)
 	@ranlib $@
@@ -197,13 +196,6 @@ clean:
 	@rm -rf $(OBJ_BUILD_DIR) $(TST_BUILD_DIR) $(LIBRARY) ./test ./*.test ./coverage ./*.log ./s21_decimal.h
 
 rebuild: clean all
-
-# =============================================================================
-# Extra-targets
-# =============================================================================
-$(HEADER):
-	$(info Creating symbolic linc to the header file...)
-	@ln --symbolic include/s21_decimal.h
 
 # =============================================================================
 # Directory creation

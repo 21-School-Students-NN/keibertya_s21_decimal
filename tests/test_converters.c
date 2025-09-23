@@ -195,6 +195,63 @@ START_TEST(test_from_decimal_to_float_rounding) {
 }
 END_TEST
 
+#ifdef ENABLE_EXTENDED_TESTS
+#include "../include/s21_helpers.h"
+
+START_TEST(test_from_float_zero) {
+  float n = 0.0f;
+  s21_decimal result;
+  ck_assert_int_eq(s21_from_float_to_decimal(n, &result), 0);
+  ck_assert_int_eq(result.bits[0], 0);
+  ck_assert_int_eq(_get_scale(&result), 0);
+}
+END_TEST
+
+START_TEST(test_from_float_negative_zero) {
+  float n = -0.0f;
+  s21_decimal result;
+  ck_assert_int_eq(s21_from_float_to_decimal(n, &result), 0);
+  ck_assert_int_eq(result.bits[0], 0);
+  ck_assert_int_eq(_get_sign(&result), 0);
+}
+END_TEST
+
+START_TEST(test_from_float_positive_integer) {
+  float n = +123.0f;
+  s21_decimal result;
+  ck_assert_int_eq(s21_from_float_to_decimal(n, &result), 0);
+  ck_assert_int_eq(result.bits[0], 123);
+  ck_assert_int_eq(_get_scale(&result), 0);
+}
+END_TEST
+
+START_TEST(test_from_float_negative_integer) {
+  float n = -456.0f;
+  s21_decimal result;
+  ck_assert_int_eq(s21_from_float_to_decimal(n, &result), 0);
+  ck_assert_int_eq(result.bits[0], 456);
+  ck_assert_int_eq(_get_sign(&result), 1);
+}
+END_TEST
+
+START_TEST(test_from_float_exact_scale_check) {
+  float n = 0.000123f;
+  s21_decimal result;
+  ck_assert_int_eq(s21_from_float_to_decimal(n, &result), 0);
+  ck_assert_int_eq(_get_scale(&result), 6);
+  ck_assert_int_eq(result.bits[0], 123);
+}
+END_TEST
+
+START_TEST(test_from_float_max_exact_boundary) {
+  float n = 7.9228162514264337593543950335e28f;
+  s21_decimal result;
+  int ret = s21_from_float_to_decimal(n, &result);
+  ck_assert_int_eq(ret, 0);
+}
+END_TEST
+#endif
+
 Suite *s21_converters_suite(void) {
   Suite *suite = suite_create("converters");
   TCase *tc_core = tcase_create("core");
@@ -215,6 +272,19 @@ Suite *s21_converters_suite(void) {
   tcase_add_test(tc_core, test_from_decimal_to_float_whole_number);
   tcase_add_test(tc_core, test_from_decimal_to_float_fractional_number);
   tcase_add_test(tc_core, test_from_decimal_to_float_rounding);
+
+#ifdef ENABLE_EXTENDED_TESTS
+  TCase *tc_extended = tcase_create("extended");
+
+  tcase_add_test(tc_extended, test_from_float_zero);
+  tcase_add_test(tc_extended, test_from_float_negative_zero);
+  tcase_add_test(tc_extended, test_from_float_positive_integer);
+  tcase_add_test(tc_extended, test_from_float_negative_integer);
+  tcase_add_test(tc_extended, test_from_float_exact_scale_check);
+  tcase_add_test(tc_extended, test_from_float_max_exact_boundary);
+
+  suite_add_tcase(suite, tc_extended);
+#endif
 
   suite_add_tcase(suite, tc_core);
   return suite;
