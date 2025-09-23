@@ -15,32 +15,14 @@ int s21_round(s21_decimal value, s21_decimal *result) {
     if (scale == 0) {
       *result = value;
     } else {
-      s21_decimal integer_part;
-      _init_decimal_zero(&integer_part);
-      s21_decimal remainder_of_division;
-      _init_decimal_zero(&remainder_of_division);
-      meta_t sign = _get_sign(&value);
-      _set_sign(&value, 0);
-      if (s21_truncate(value, &integer_part)) {
-        error = S21_ERROR;
-      }
-      if (!error && s21_sub(value, integer_part, &remainder_of_division)) {
-        error = S21_ERROR;
-      }
-      s21_decimal zero_dot_five = {{5u, 0u, 0u, 0u}};
-      _set_scale(&zero_dot_five, 1);
-      if (!error &&
-          s21_is_greater_or_equal(remainder_of_division, zero_dot_five)) {
-        s21_decimal one = {{1u, 0u, 0u, 0u}};
-        if (s21_add(integer_part, one, result)) {
-          error = S21_ERROR;
-        }
-      } else if (!error) {
-        *result = integer_part;
-      }
-      if (!error) {
-        _set_sign(result, sign);
-        _set_scale(result, 0);
+      *result = value;
+      int reminder = 0;
+      for (int i = 0; i < scale; i++) reminder = _divide_by_10(result, 0);
+      _set_scale(result, 0);
+      if (reminder > 5 || (reminder == 5 && (result->bits[0] & 1))) {
+        s21_decimal one = {{1, 0, 0, 0}};
+        _set_sign(&one, _get_sign(result));
+        error = s21_add(*result, one, result);
       }
     }
   }

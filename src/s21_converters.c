@@ -32,24 +32,35 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
   int result = S21_ERROR;
   if (dst) {
     _init_decimal_zero(dst);
+    if (src == 0) return S21_SUCCESS;
     float abs_src = fabs(src);
-    if (abs_src > 1e-28 && abs_src < MAX_DEC_VALUE) {
-      char number[20];
-      sprintf(number, "%.6E", abs_src);
+    if (abs_src > 1e-28 && abs_src <= MAX_DEC_VALUE) {
+      char number[24];
+      sprintf(number, "%.7E", abs_src);
       int int_val = 0;
       char *ptr = number;
-      for (int i = 1000000; i >= 1; i /= 10) {
+      for (int i = 10000000; i >= 1; i /= 10) {
         if (*ptr == '.') ptr++;
         int_val += (*ptr - '0') * i;
         ptr++;
       }
-      s21_from_int_to_decimal(int_val, dst);
+      int rem = int_val % 10;
+      int_val /= 10;
+      if (rem > 5 || (rem == 5 && (int_val & 1))) int_val++;
+      dst->bits[0] = int_val;
       short exp = strtol(ptr + 1, NULL, 10) - 6;
       if (exp > 0) {
-        s21_mul(*dst, ten_pows[exp], dst);
+        for (int e = 0; e < exp; ++e) {
+          _multiply_by_10(dst);
+        }
       } else if (exp < -28) {
+        for (int e = exp; e < -29; ++e) {
+          dst->bits[0] /= 10;
+        }
+        rem = dst->bits[0] % 10;
+        dst->bits[0] /= 10;
+        if (rem > 5 || (rem == 5 && (dst->bits[0] & 1))) dst->bits[0]++;
         dst->bits[3] = (int)(28) << 16;
-        s21_div(*dst, ten_pows[-28 - exp], dst);
       } else {
         dst->bits[3] = (int)(-exp) << 16;
       }
@@ -67,7 +78,11 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst) {
     *dst = 0;
     if (s21_truncate(src, &src) == S21_SUCCESS) {
       int scale = _get_scale(&src);
-      if (scale) s21_div(src, ten_pows[scale], &src);
+      if (scale) {
+        for (int e = 0; e < scale; ++e) {
+          _divide_by_10(&src, 0);
+        }
+      }
       *dst = (_get_sign(&src) ? -1 : 1) * src.bits[0];
       result = S21_SUCCESS;
     }

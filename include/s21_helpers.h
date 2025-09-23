@@ -18,41 +18,9 @@
 #define MAX_PRECISION 29
 #define DECIMAL_MANTISSA_BITS 96
 
-/**
- * @brief powers of ten are needed in some case:
- * in converters,
- * in rounding functions
- */
-static const s21_decimal ten_pows[29] = {
-    [0] = {{0x1, 0x0, 0x0, 0x0}},
-    [1] = {{0xA, 0x0, 0x0, 0x0}},
-    [2] = {{0x64, 0x0, 0x0, 0x0}},
-    [3] = {{0x3E8, 0x0, 0x0, 0x0}},
-    [4] = {{0x2710, 0x0, 0x0, 0x0}},
-    [5] = {{0x186A0, 0x0, 0x0, 0x0}},
-    [6] = {{0xF4240, 0x0, 0x0, 0x0}},
-    [7] = {{0x989680, 0x0, 0x0, 0x0}},
-    [8] = {{0x5F5E100, 0x0, 0x0, 0x0}},
-    [9] = {{0x3B9ACA00, 0x0, 0x0, 0x0}},
-    [10] = {{0x540BE400, 0x2, 0x0, 0x0}},
-    [11] = {{0x4876E800, 0x17, 0x0, 0x0}},
-    [12] = {{0xD4A51000, 0xE8, 0x0, 0x0}},
-    [13] = {{0x4E72A000, 0x918, 0x0, 0x0}},
-    [14] = {{0x107A4000, 0x5AF3, 0x0, 0x0}},
-    [15] = {{0xA4C68000, 0x38D7E, 0x0, 0x0}},
-    [16] = {{0x6FC10000, 0x2386F2, 0x0, 0x0}},
-    [17] = {{0x5D8A0000, 0x1634578, 0x0, 0x0}},
-    [18] = {{0xA7640000, 0xDE0B6B3, 0x0, 0x0}},
-    [19] = {{0x89E80000, 0x8AC72304, 0x0, 0x0}},
-    [20] = {{0x63100000, 0x6BC75E2D, 0x5, 0x0}},
-    [21] = {{0xDEA00000, 0x35C9ADC5, 0x36, 0x0}},
-    [22] = {{0xB2400000, 0x19E0C9BA, 0x21E, 0x0}},
-    [23] = {{0xF6800000, 0x2C7E14A, 0x152D, 0x0}},
-    [24] = {{0xA1000000, 0x1BCECCED, 0xD3C2, 0x0}},
-    [25] = {{0x4A000000, 0x16140148, 0x84595, 0x0}},
-    [26] = {{0xE4000000, 0xDCC80CD2, 0x52B7D2, 0x0}},
-    [27] = {{0xE8000000, 0x9FD0803C, 0x33B2E3C, 0x0}},
-    [28] = {{0x10000000, 0x3E250261, 0x204FCE5E, 0x0}}};
+typedef struct {
+  uint64_t bits[6];
+} s21_uint192_t;
 
 /** @brief Data type for holding the meta information about decimal such `sign`
  * or `scale` */
@@ -214,45 +182,6 @@ int _compare_mantissas(const s21_decimal *value_1, const s21_decimal *value_2);
     MURK'S FUNCTIONS
 ======================================================================*/
 
-/**
- * @brief Складывает две 96-битные мантиссы.
- * @param a         Мантисса первого числа.
- * @param b         Мантисса второго числа.
- * @param result    Указатель для записи 96-битного результата.
- * @return uint32_t Возвращает 32-битный перенос (carry_out).
- */
-uint32_t add_96_mantissas(const s21_decimal num1, const s21_decimal num2,
-                          s21_decimal *result);
-
-/**
- * @brief Увеличивает мантиссу s21_decimal на 1. (Ваша версия)
- * @param num Указатель на s21_decimal для инкремента.
- * @return 1 при переполнении, 0 при успехе.
- */
-uint8_t increment_96(s21_decimal *num);
-
-/**
- * @brief Умножает 96-битную мантиссу на 10.
- * @param bits Мантисса для умножения (будет изменена).
- * @return true при переполнении, иначе false.
- */
-int multiply_96_mantissa(s21_decimal *num);
-
-/**
- * @brief Выполняет умножение 96-битных мантисс "в столбик".
- *
- * @param value_1 Первый множитель.
- * @param value_2 Второй множитель.
- * @param temp_result 192-битный (6 x uint32_t) массив для результата.
- */
-void multiply_mantissas(s21_decimal value_1, s21_decimal value_2,
-                        uint32_t temp_result[6]);
-
-void _bank_round(s21_decimal *value, uint32_t remainder, int scale);
-
-void _subtract_mantissas(s21_decimal value_1, s21_decimal value_2,
-                         s21_decimal *result);
-
 int _multiply_by_10(s21_decimal *value);
 
 uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder);
@@ -266,5 +195,35 @@ uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder);
  * @date 14.08.2025
  */
 meta_t _get_bit(s21_decimal *dec, unsigned order) __attribute__((nonnull));
+
+void from_decimal_to_int192(s21_decimal value, s21_uint192_t *result);
+
+/*======================================================================
+    192-bit arithmetic
+======================================================================*/
+
+int uint192_compare(s21_uint192_t value1, s21_uint192_t value2);
+
+void uint192_shift_left(s21_uint192_t *value, uint32_t shift);
+
+void uint192_shift_right(s21_uint192_t *value, uint32_t shift);
+
+uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
+                     s21_uint192_t *result);
+
+int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
+                s21_uint192_t *result);
+
+int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
+             s21_uint192_t *res2);
+
+int uint192_mult_by_10(s21_uint192_t *value1);
+
+uint32_t uint192_div_by_10(s21_uint192_t *value);
+
+int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
+             s21_uint192_t *res2);
+
+int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale, s21_decimal *dst);
 
 #endif  // S21_HELPERS_H

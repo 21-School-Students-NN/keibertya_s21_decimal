@@ -67,7 +67,7 @@ START_TEST(test_round_positive_tie_25_half_up) {
   s21_decimal out;
   int rc = s21_round(in, &out);
   ck_assert_int_eq(rc, S21_SUCCESS);
-  s21_decimal expected = make_decimal(3u, 0u, 0u, 0u, 0u);
+  s21_decimal expected = make_decimal(2u, 0u, 0u, 0u, 0u);
   assert_decimal_eq(out, expected);
 }
 END_TEST
@@ -89,7 +89,7 @@ START_TEST(test_round_negative_tie_25_half_up) {
   s21_decimal out;
   int rc = s21_round(in, &out);
   ck_assert_int_eq(rc, S21_SUCCESS);
-  s21_decimal expected = make_decimal(3u, 0u, 0u, 0u, 1u);
+  s21_decimal expected = make_decimal(2u, 0u, 0u, 0u, 1u);
   assert_decimal_eq(out, expected);
 }
 END_TEST
@@ -99,7 +99,7 @@ START_TEST(test_round_positive_zero_half_up) {
   s21_decimal out;
   int rc = s21_round(in, &out);
   ck_assert_int_eq(rc, S21_SUCCESS);
-  s21_decimal expected = make_decimal(1u, 0u, 0u, 0u, 0u);
+  s21_decimal expected = make_decimal(0u, 0u, 0u, 0u, 0u);
   assert_decimal_eq(out, expected);
   ck_assert_uint_eq(get_sign(&out), 0u);
 }
@@ -110,7 +110,7 @@ START_TEST(test_round_negative_zero_half_up) {
   s21_decimal out;
   int rc = s21_round(in, &out);
   ck_assert_int_eq(rc, S21_SUCCESS);
-  s21_decimal expected = make_decimal(1u, 0u, 0u, 0u, 1u);
+  s21_decimal expected = make_decimal(0u, 0u, 0u, 0u, 1u);
   assert_decimal_eq(out, expected);
   assert_scale_zero(&out);
   ck_assert_uint_eq(get_sign(&out), 1u);
@@ -217,6 +217,43 @@ START_TEST(test_round_negative_greater_half) {
 }
 END_TEST
 
+#ifdef ENABLE_EXTENDED_TESTS
+
+#include "../include/s21_helpers.h"
+
+START_TEST(test_round_down_half) {
+  s21_decimal val = {{5, 0, 0, 0}};  // 0.5
+  _set_scale(&val, 1);
+  s21_decimal res;
+  s21_round(val, &res);
+  ck_assert_int_eq(res.bits[0], 1);
+  ck_assert_int_eq(_get_scale(&res), 0);
+}
+END_TEST
+
+START_TEST(test_round_negative_half) {
+  s21_decimal val = {{5, 0, 0, 0}};  // -0.5
+  _set_scale(&val, 1);
+  _set_sign(&val, 1);
+  s21_decimal res;
+  s21_round(val, &res);
+  ck_assert_int_eq(res.bits[0], 0);
+  ck_assert_int_eq(_get_sign(&res), 1);
+}
+END_TEST
+
+START_TEST(test_round_negative_up) {
+  s21_decimal val = {{25, 0, 0, 0}};  // -2.5
+  _set_scale(&val, 1);
+  _set_sign(&val, 1);
+  s21_decimal res;
+  s21_round(val, &res);
+  ck_assert_int_eq(res.bits[0], 2);
+  ck_assert_int_eq(get_sign(&res), 1);
+}
+END_TEST
+#endif
+
 Suite *s21_round_suite(void) {
   Suite *s = suite_create("round");
   TCase *tc_core = tcase_create("Core");
@@ -239,6 +276,17 @@ Suite *s21_round_suite(void) {
   tcase_add_test(tc_core, test_round_negative_less_half);
   tcase_add_test(tc_core, test_round_negative_equal_half);
   tcase_add_test(tc_core, test_round_negative_greater_half);
+
+#ifdef ENABLE_EXTENDED_TESTS
+  TCase *tc_extended = tcase_create("extended");
+
+  tcase_add_test(tc_extended, test_round_down_half);
+  tcase_add_test(tc_extended, test_round_negative_half);
+  tcase_add_test(tc_extended, test_round_negative_up);
+
+  suite_add_tcase(s, tc_extended);
+#endif
+
   suite_add_tcase(s, tc_core);
   return s;
 }
