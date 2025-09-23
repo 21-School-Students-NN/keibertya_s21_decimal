@@ -39,41 +39,6 @@ int _is_equal(s21_decimal value1, s21_decimal value2) {
          value1.bits[2] == value2.bits[2] && value1.bits[3] == value2.bits[3];
 }
 
-void _bank_round(s21_decimal *value, uint32_t remainder, int scale) {
-  if (remainder > 5) {
-    // Rounding up
-    s21_decimal one = {{1, 0, 0, 0}};
-    _set_scale(&one, scale);
-    _set_sign(&one, _get_sign(value));
-    s21_add(*value, one, value);
-  } else if (remainder == 5) {
-    // Bank rounding: rounding to the nearest even number
-    if (value->bits[0] & 1) {
-      s21_decimal one = {{1, 0, 0, 0}};
-      _set_scale(&one, scale);
-      _set_sign(&one, _get_sign(value));
-      s21_add(*value, one, value);
-    }
-  }
-}
-
-void _subtract_mantissas(s21_decimal value_1, s21_decimal value_2,
-                         s21_decimal *result) {
-  uint64_t diff;
-  uint32_t borrow = 0;
-
-  diff = (uint64_t)value_1.bits[0] - value_2.bits[0] - borrow;
-  result->bits[0] = (uint32_t)diff;
-  borrow = (diff >> 32) ? 1 : 0;
-
-  diff = (uint64_t)value_1.bits[1] - value_2.bits[1] - borrow;
-  result->bits[1] = (uint32_t)diff;
-  borrow = (diff >> 32) ? 1 : 0;
-
-  diff = (uint64_t)value_1.bits[2] - value_2.bits[2] - borrow;
-  result->bits[2] = (uint32_t)diff;
-}
-
 int _is_decimal_zero(const s21_decimal *dec) {
   return !(dec->bits[0] | dec->bits[1] | dec->bits[2]);
 }
@@ -129,53 +94,8 @@ int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
   }
   return status_code;
 }
-/*
-int _normalize_product(uint64_t product[6], int scale, int sign,
-                       s21_decimal *result) {
-  _init_decimal_zero(result);
 
-  uint32_t last_digit = 0;
-  int status_code = S21_SUCCESS;
-
-  while ((product[3] || product[4] || product[5] || scale > 28) && scale > 0) {
-    uint64_t remainder = 0;
-    for (int i = 5; i >= 0; i--) {
-      uint64_t dividend = (remainder << 32) | product[i];
-      product[i] = dividend / 10;
-      remainder = dividend % 10;
-    }
-    last_digit = remainder;
-    scale--;
-  }
-
-  if (product[3] || product[4] || product[5]) {
-    status_code = sign ? S21_TOO_SMALL : S21_TOO_LARGE;
-  }
-
-  if ((last_digit > 5 || (last_digit == 5 && (product[0] & 1))) &&
-      !status_code) {
-    s21_decimal one = {{1, 0, 0, 0}};
-    s21_decimal tmp = {{product[0], product[1], product[2], 0}};
-
-    if (_add_with_carry(&tmp, &one, &tmp)) {
-      status_code = sign ? S21_TOO_SMALL : S21_TOO_LARGE;
-    }
-
-    if (!status_code)
-      for (int i = 0; i < 3; ++i) product[i] = tmp.bits[i];
-  }
-
-  if (!status_code) {
-    for (int i = 0; i < 3; ++i) result->bits[i] = product[i];
-
-    _set_sign(result, sign);
-    _set_scale(result, scale);
-  }
-
-  return status_code;
-}*/
-
-int _divide_and_round(s21_decimal *dec, uint32_t carry) {
+/**/ int _divide_and_round(s21_decimal *dec, uint32_t carry) {
   const uint32_t dividend[4] = {dec->bits[0], dec->bits[1], dec->bits[2],
                                 carry};
   uint32_t quotient[4] = {0, 0, 0, 0};
@@ -291,6 +211,10 @@ meta_t _get_bit(s21_decimal *dec, unsigned order) {
   }
 }
 
+//======================================================================
+//  192-bit Arithmetic
+//======================================================================
+
 void from_decimal_to_int192(s21_decimal value, s21_uint192_t *result) {
   for (int i = 0; i < 3; i++) result->bits[i] = value.bits[i];
   for (int i = 3; i < 6; i++) result->bits[i] = 0;
@@ -304,10 +228,9 @@ int uint192_compare(s21_uint192_t value1, s21_uint192_t value2) {
   return 0;
 }
 
-/*
 void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
   uint32_t carry;
-  for (int s = 0; s < shift; ++s) {
+  for (uint32_t s = 0; s < shift; ++s) {
     uint32_t prev_carry = 0;
     for (int i = 0; i < 6; ++i) {
       carry = value->bits[i] >> 31;
@@ -319,15 +242,15 @@ void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
 
 void uint192_shift_right(s21_uint192_t *value, uint32_t shift) {
   uint32_t carry;
-  for (int s = 0; s < shift; ++s) {
+  for (uint32_t s = 0; s < shift; ++s) {
     uint32_t prev_carry = 0;
     for (int i = 5; i >= 0; --i) {
       carry = (value->bits[i] & 1) << 31;
-      value->bits[i] = (value->bits[i] >> 1) | prev_carry << 31;
+      value->bits[i] = (value->bits[i] >> 1) | prev_carry;
       prev_carry = carry;
     }
   }
-}*/
+}
 
 uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
                      s21_uint192_t *result) {
@@ -432,7 +355,7 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
   int code = S21_ERROR;
   if (src && dst) {
     uint32_t rem = 0;
-    while (src->bits[3] | src->bits[4] | src->bits[5]) {
+    while ((src->bits[3] | src->bits[4] | src->bits[5]) || scale > MAX_SCALE) {
       if (scale == 0) return S21_TOO_LARGE;
       rem = uint192_div_by_10(src);
       scale--;

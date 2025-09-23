@@ -24,30 +24,6 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 
   // handle case where one of dec is zero
   int response = S21_SUCCESS;
-  /*if (_is_decimal_zero(&value_1) || _is_decimal_zero(&value_2)) {
-    if (_is_decimal_zero(&value_1))
-      *result = value_2;
-    else
-      *result = value_1;
-    // if not zero, trying to normalize
-  } else if (!(response = _normalize(&value_1, &value_2))) {
-    s21_decimal tmp_result = {0};
-
-    uint32_t carry = _add_with_carry(&value_1, &value_2, &tmp_result);
-    int final_scale = _get_scale(&value_1);
-
-    while (carry > 0 && final_scale--)
-      carry = _divide_and_round(&tmp_result, carry);
-
-    if (carry) {
-      response = _get_sign(&value_1) ? S21_TOO_SMALL : S21_TOO_LARGE;
-    } else {
-      for (int i = 0; i < 3; ++i) result->bits[i] = tmp_result.bits[i];
-      _set_sign(result, _get_sign(&value_1));
-      _set_scale(result, final_scale);
-    }
-  }*/
-
   if (_is_decimal_zero(&value_1) || _is_decimal_zero(&value_2)) {
     if (_is_decimal_zero(&value_1))
       *result = value_2;

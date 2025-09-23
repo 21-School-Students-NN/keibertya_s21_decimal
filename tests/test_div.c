@@ -70,7 +70,7 @@ START_TEST(test_div_with_different_scales) {
   _set_scale(&expected, 1);  // 1.0
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed on numbers with different scales");
-  ck_assert_msg(_is_equal(result, expected), "10.0 / 10 should be 1.0");
+  ck_assert_msg(s21_is_equal(result, expected), "10.0 / 10 should be 1.0");
 }
 END_TEST
 
@@ -111,6 +111,7 @@ START_TEST(test_div_large_numbers) {
   s21_decimal result;
   s21_decimal expected = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};
 
+  // ck_assert_uint_eq(s21_div(num1, num2, &result), 0);
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed with large numbers");
   ck_assert_msg(_is_equal(result, expected),
