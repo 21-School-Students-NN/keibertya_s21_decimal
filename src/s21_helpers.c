@@ -129,7 +129,7 @@ int _normalize(s21_decimal *value_1, s21_decimal *value_2) {
   }
   return status_code;
 }
-
+/*
 int _normalize_product(uint64_t product[6], int scale, int sign,
                        s21_decimal *result) {
   _init_decimal_zero(result);
@@ -173,7 +173,7 @@ int _normalize_product(uint64_t product[6], int scale, int sign,
   }
 
   return status_code;
-}
+}*/
 
 int _divide_and_round(s21_decimal *dec, uint32_t carry) {
   const uint32_t dividend[4] = {dec->bits[0], dec->bits[1], dec->bits[2],
