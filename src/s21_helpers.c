@@ -431,14 +431,22 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
                             s21_decimal *dst) {
   int code = S21_ERROR;
   if (src && dst) {
+    uint32_t rem = 0;
     while (src->bits[3] | src->bits[4] | src->bits[5]) {
       if (scale == 0) return S21_TOO_LARGE;
-      uint32_t rem = uint192_div_by_10(src);
-      if (rem > 5 || (rem == 5 && src->bits[0] << 31)) {
-        s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
-        uint192_add(*src, one, src);
-      }
+      rem = uint192_div_by_10(src);
       scale--;
+    }
+    // bank rounding
+    if (rem > 5 || (rem == 5 && src->bits[0] << 31)) {
+      s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
+      uint192_add(*src, one, src);
+      if (scale == 0 && src->bits[3]) return S21_TOO_LARGE;
+      if (src->bits[3]) {  // scale > 0: no overflow
+        rem = uint192_div_by_10(src);
+        scale--;
+        if (rem > 5) uint192_add(*src, one, src);
+      }
     }
     for (int i = 0; i < 3; ++i) {
       dst->bits[i] = src->bits[i];

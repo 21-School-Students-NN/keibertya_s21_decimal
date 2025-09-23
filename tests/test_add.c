@@ -57,7 +57,7 @@ END_TEST
 
 START_TEST(test_add_max_overflow) {
   s21_decimal a = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};  // 2^96 - 1
-  s21_decimal b = {{4999999, 0, 0, 0x70000}};
+  s21_decimal b = {{501, 0, 0, 0x30000}};
   s21_decimal result;
 
   ck_assert_msg(s21_add(a, b, &result) == S21_TOO_LARGE,
