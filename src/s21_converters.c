@@ -46,7 +46,7 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
       }
       int rem = int_val % 10;
       int_val /= 10;
-      if (rem >= 5 || (rem == 5 && (int_val & 1))) int_val++;
+      if (rem > 5 || (rem == 5 && (int_val & 1))) int_val++;
       dst->bits[0] = int_val;
       short exp = strtol(ptr + 1, NULL, 10) - 6;
       if (exp > 0) {
@@ -59,7 +59,7 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
         }
         rem = dst->bits[0] % 10;
         dst->bits[0] /= 10;
-        if (rem >= 5 || (rem == 5 && (dst->bits[0] & 1))) dst->bits[0]++;
+        if (rem > 5 || (rem == 5 && (dst->bits[0] & 1))) dst->bits[0]++;
         dst->bits[3] = (int)(28) << 16;
       } else {
         dst->bits[3] = (int)(-exp) << 16;
