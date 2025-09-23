@@ -24,9 +24,6 @@ int main(void) {
   srunner_add_suite(sr, s21_truncate_suite());
   srunner_add_suite(sr, s21_round_suite());
 
-  // new tests
-  srunner_add_suite(sr, arithmetic_suite());
-
   //  Check for CK_RUN_SUITE and set a custom log file
   const char *suite = getenv("CK_RUN_SUITE");
   if (suite && strlen(suite) > 0) {

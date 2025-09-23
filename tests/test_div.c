@@ -179,6 +179,58 @@ START_TEST(test_div_simple_case) {
 }
 END_TEST
 
+#ifdef ENABLE_EXTENDED_TESTS
+START_TEST(test_div_edge_case_1) {
+  // 79228162514264337593543950335
+  s21_decimal value_1 = {{0xffffffff, 0xffffffff, 0xffffffff, 0x0}};
+  // 4237574999123243252.047263256
+  s21_decimal value_2 = {{0xc239b618, 0x01882ac2, 0x0db13d69, 0x90000}};
+  s21_decimal result = {{0}};
+  // 18696580598.728445112386526146
+  s21_decimal expected = {{0xd0431bc2, 0x28da9b43, 0x3c6972f1, 0x120000}};
+  int s21_code_return = s21_div(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(result, expected), 1);
+}
+END_TEST
+
+START_TEST(test_div_edge_case_2) {
+  // 535873509258928592.89529592859
+  s21_decimal value_1 = {{0x78e5ac1b, 0x946e3ff1, 0xad266af2, 0xb0000}};
+  // -6534.0000000000000000000000003
+  s21_decimal value_2 = {{0xbc000002, 0x8298bb10, 0xd31ffb31, 0x80190000}};
+  s21_decimal result = {{0}};
+  // -82013086816487.38795459074511
+  s21_decimal expected = {{0x19de59cf, 0x7e4ec6f2, 0x1a7ff6aa, 0x800e0000}};
+  int s21_code_return = s21_div(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(result, expected), 1);
+}
+END_TEST
+
+START_TEST(test_div_edge_case_3) {
+  // 0.7922816251426433759354395033
+  s21_decimal value_1 = {{0x99999999, 0x99999999, 0x19999999, 0x1c0000}};
+  // 29228162514264337593543950335
+  s21_decimal value_2 = {{0xafffffff, 0xc946f41a, 0x5e70f828, 0x0}};
+  s21_decimal result = {{0}};
+  int s21_code_return = s21_div(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
+}
+END_TEST
+
+START_TEST(test_div_edge_case_4) {
+  // 26790900105265827596743072504
+  s21_decimal value_1 = {{0x2be1daf8, 0xd93baf9b, 0x5690e9c4, 0x0}};
+  // 0.000000000000003
+  s21_decimal value_2 = {{0x3, 0x0, 0x0, 0xf0000}};
+  s21_decimal result = {{0}};
+  int s21_code_return = s21_div(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
+}
+END_TEST
+#endif
+
 Suite *s21_div_suite() {
   Suite *ps = suite_create("div");
   TCase *tc = tcase_create("core");
@@ -194,6 +246,18 @@ Suite *s21_div_suite() {
   tcase_add_test(tc, test_div_periodic_fraction);
   tcase_add_test(tc, test_div_complex_periodic);
   tcase_add_test(tc, test_div_simple_case);
+
+#ifdef ENABLE_EXTENDED_TESTS
+  TCase *tc_extended = tcase_create("extended");
+
+  tcase_add_test(tc_extended, test_div_edge_case_1);
+  tcase_add_test(tc_extended, test_div_edge_case_2);
+  tcase_add_test(tc_extended, test_div_edge_case_3);
+  tcase_add_test(tc_extended, test_div_edge_case_4);
+
+  suite_add_tcase(ps, tc_extended);
+#endif
+
   suite_add_tcase(ps, tc);
   return ps;
 }

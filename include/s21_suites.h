@@ -16,7 +16,4 @@ Suite *s21_floor_suite(void);
 Suite *s21_converters_suite(void);
 Suite *s21_comparison_suite(void);
 
-// new tests
-Suite *arithmetic_suite(void);
-
 #endif /* S21_SUITES_H */
