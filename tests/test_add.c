@@ -105,20 +105,7 @@ START_TEST(test_add_different_scales) {
 END_TEST
 
 #ifdef ENABLE_EXTENDED_TESTS
-START_TEST(test_add_bank_rounding) {
-  s21_decimal a = {
-      {0xFFFFFFFF - 1, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000}};  // 2^96 - 2
-  s21_decimal b = {{51, 0, 0, 0x00020000}};                   // 0.51
-  s21_decimal result;
 
-  ck_assert_msg(
-      s21_add(a, b, &result) == S21_SUCCESS,
-      "s21_add returned error on add with diff scale 2^96 - 2 + 0.51");
-
-  for (int i = 0; i < 2; ++i) ck_assert_uint_eq(result.bits[i], 0xFFFFFFFF);
-  ck_assert_uint_eq(_get_scale(&result), 0);
-}
-END_TEST
 #endif
 
 START_TEST(test_add_regular_rounding) {
@@ -136,110 +123,59 @@ START_TEST(test_add_regular_rounding) {
 }
 END_TEST
 
-#ifdef ENABLE_EXTENDED_TESTS  // MURK's TESTS
+#ifdef ENABLE_EXTENDED_TESTS
 
-// Базовое сложение положительных чисел
-START_TEST(test_add_positive_basic) {
-  s21_decimal a = {{5, 0, 0, 0}};
-  s21_decimal b = {{3, 0, 0, 0}};
-  s21_decimal result;
-  int error = s21_add(a, b, &result);
-
-  ck_assert_int_eq(error, 0);
-  ck_assert_int_eq(result.bits[0], 8);
-  ck_assert_int_eq(result.bits[1], 0);
-  ck_assert_int_eq(result.bits[2], 0);
-  ck_assert_int_eq(result.bits[3], 0);
+START_TEST(test_add_edge_case_1) {
+  // -0.5
+  s21_decimal value_1 = {{0x5, 0x0, 0x0, 0x80010000}};
+  // 79228162514264337593543950335
+  s21_decimal value_2 = {{0xffffffff, 0xffffffff, 0xffffffff, 0x0}};
+  s21_decimal result = {{0}};
+  // 79228162514264337593543950334
+  s21_decimal expected = {{0xfffffffe, 0xffffffff, 0xffffffff, 0x0}};
+  int s21_code_return = s21_add(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(result, expected), 1);
 }
 END_TEST
 
-// Сложение с разными scale
-START_TEST(test_add_different_scale) {
-  s21_decimal a = {{123, 0, 0, 0x00010000}};  // 12.3
-  s21_decimal b = {{45, 0, 0, 0x00020000}};   // 0.45
-  s21_decimal result;
-  int error = s21_add(a, b, &result);
-
-  ck_assert_int_eq(error, 0);
-  ck_assert_int_eq(result.bits[0], 1275);            // 12.75 * 100
-  ck_assert_int_eq(result.bits[3] >> 16 & 0xFF, 2);  // scale=2
+START_TEST(test_add_edge_case_2) {
+  // -79228162514264337593543950334
+  s21_decimal value_1 = {{0xfffffffe, 0xffffffff, 0xffffffff, 0x80000000}};
+  // 0.5000000000000000000000000001
+  s21_decimal value_2 = {{0x88000001, 0x1f128130, 0x1027e72f, 0x1c0000}};
+  s21_decimal result = {{0}};
+  // -79228162514264337593543950333
+  s21_decimal expected = {{0xfffffffd, 0xffffffff, 0xffffffff, 0x80000000}};
+  int s21_code_return = s21_add(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_SUCCESS);
+  ck_assert_int_eq(s21_is_equal(result, expected), 1);
 }
 END_TEST
 
-// Положительное + отрицательное = вычитание
-START_TEST(test_add_positive_negative) {
-  s21_decimal a = {{10, 0, 0, 0}};          // 10
-  s21_decimal b = {{3, 0, 0, 0x80000000}};  // -3
-  s21_decimal result;
-  int error = s21_add(a, b, &result);
-
-  ck_assert_int_eq(error, 0);
-  ck_assert_int_eq(result.bits[0], 7);
-  ck_assert_int_eq(result.bits[3], 0);  // положительный результат
+START_TEST(test_add_edge_case_3) {
+  // 0.5
+  s21_decimal value_1 = {{0x5, 0x0, 0x0, 0x10000}};
+  // 79228162514264337593543950335
+  s21_decimal value_2 = {{0xffffffff, 0xffffffff, 0xffffffff, 0x0}};
+  s21_decimal result = {{0}};
+  int s21_code_return = s21_add(value_1, value_2, &result);
+  ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
 }
 END_TEST
 
-// Оба отрицательные
-START_TEST(test_add_both_negative) {
-  s21_decimal a = {{5, 0, 0, 0x80000000}};  // -5
-  s21_decimal b = {{2, 0, 0, 0x80000000}};  // -2
+START_TEST(test_add_edge_case_4) {
+  s21_decimal a = {
+      {0xFFFFFFFF - 1, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000}};  // 2^96 - 2
+  s21_decimal b = {{51, 0, 0, 0x00020000}};                   // 0.51
   s21_decimal result;
-  int error = s21_add(a, b, &result);
 
-  ck_assert_int_eq(error, 0);
-  ck_assert_int_eq(result.bits[0], 7);
-  ck_assert_int_eq(result.bits[3], 0x80000000);  // отрицательный результат
-}
-END_TEST
+  ck_assert_msg(
+      s21_add(a, b, &result) == S21_SUCCESS,
+      "s21_add returned error on add with diff scale 2^96 - 2 + 0.51");
 
-// Переполнение (число слишком велико)
-START_TEST(test_add_overflow) {
-  s21_decimal max_val = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};
-  s21_decimal one = {{1, 0, 0, 0}};
-  s21_decimal result;
-  int error = s21_add(max_val, one, &result);
-
-  ck_assert_int_eq(error, 1);  // Ошибка переполнения
-}
-END_TEST
-
-// Базовое вычитание положительных
-START_TEST(test_sub_positive_basic) {
-  s21_decimal a = {{10, 0, 0, 0}};
-  s21_decimal b = {{3, 0, 0, 0}};
-  s21_decimal result;
-  int error = s21_sub(a, b, &result);
-
-  ck_assert_int_eq(error, 0);
-  ck_assert_int_eq(result.bits[0], 7);
-  ck_assert_int_eq(result.bits[3], 0);
-}
-END_TEST
-
-// Вычитание с отрицательным результатом
-START_TEST(test_sub_negative_result) {
-  s21_decimal a = {{3, 0, 0, 0}};
-  s21_decimal b = {{10, 0, 0, 0}};
-  s21_decimal result;
-  int error = s21_sub(a, b, &result);
-
-  ck_assert_int_eq(error, 0);
-  ck_assert_int_eq(result.bits[0], 7);
-  ck_assert_int_eq(result.bits[3], 0x80000000);  // отрицательный
-}
-END_TEST
-
-// Сложение с большим scale
-START_TEST(test_add_large_scale) {
-  s21_decimal a = {{123456789, 0, 0, 0x00080000}};  // 1.23456789
-  s21_decimal b = {{1, 0, 0, 0x00010000}};          // 0.1
-  s21_decimal result;
-  int error = s21_add(a, b, &result);
-
-  ck_assert_int_eq(error, 0);
-  // Ожидается 1.33456789 с scale=8
-  ck_assert_int_eq(result.bits[0], 133456789);
-  ck_assert_int_eq(result.bits[3] >> 16 & 0xFF, 8);
+  for (int i = 0; i < 2; ++i) ck_assert_uint_eq(result.bits[i], 0xFFFFFFFF);
+  ck_assert_uint_eq(_get_scale(&result), 0);
 }
 END_TEST
 #endif
@@ -261,15 +197,10 @@ Suite* s21_add_suite() {
 #ifdef ENABLE_EXTENDED_TESTS
   TCase* tc_extended = tcase_create("extended");
 
-  tcase_add_test(tc_extended, test_add_bank_rounding);
-  tcase_add_test(tc_extended, test_add_positive_basic);
-  tcase_add_test(tc_extended, test_add_different_scale);
-  tcase_add_test(tc_extended, test_add_positive_negative);
-  tcase_add_test(tc_extended, test_add_both_negative);
-  tcase_add_test(tc_extended, test_add_overflow);
-  tcase_add_test(tc_extended, test_sub_positive_basic);
-  tcase_add_test(tc_extended, test_sub_negative_result);
-  tcase_add_test(tc_extended, test_add_large_scale);
+  tcase_add_test(tc_extended, test_add_edge_case_1);
+  tcase_add_test(tc_extended, test_add_edge_case_2);
+  tcase_add_test(tc_extended, test_add_edge_case_3);
+  tcase_add_test(tc_extended, test_add_edge_case_4);
 
   suite_add_tcase(ps, tc_extended);
 #endif

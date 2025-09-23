@@ -145,7 +145,8 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     // add decimal digits while scale < max_scale
     while (!_is_decimal_zero(&temp_remainder) &&
            (precision + result_scale) < MAX_SCALE &&
-           precision < MAX_PRECISION) {
+           precision < MAX_PRECISION &&
+           (temp_quotient.bits[2] < 0x204FCE5E)) {  // max mantiss length
       _multiply_by_10(&temp_remainder);
       s21_decimal new_quotient = {0};
       s21_decimal new_remainder = {0};
@@ -166,18 +167,21 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     remainder = temp_remainder;
     result_scale += precision;
   }
-
   // Banking rounding (if necessary)
-  if (!_is_decimal_zero(&remainder) && result_scale >= MAX_SCALE) {
+  if (!_is_decimal_zero(&remainder) && (quotient.bits[2] >= 0x204FCE5E)) {
     //  Convert remainder to digit for rounding
     s21_decimal temp = remainder;
     uint32_t round_digit = 0;
-
     for (int i = 0; i < 10 && !_is_decimal_zero(&temp); i++) {
       round_digit = _divide_by_10(&temp, 0);
     }
-
-    _bank_round(&quotient, round_digit, result_scale);
+    if (round_digit > 5) {
+      quotient.bits[0] += 1;
+    } else if (round_digit == 5) {
+      if (quotient.bits[0] & 1) {
+        quotient.bits[0] += 1;
+      }
+    }
   }
 
   // set result
