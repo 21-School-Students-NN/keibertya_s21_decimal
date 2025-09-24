@@ -30,6 +30,7 @@ int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   status_code = from_uint192_to_decimal(&product, result_scale, result);
   _set_sign(result, result_sign);
   if (status_code == S21_TOO_LARGE && result_sign) status_code = S21_TOO_SMALL;
-
+  if (_is_decimal_zero(result) && status_code == S21_SUCCESS)
+    return S21_TOO_SMALL;
   return status_code;
 }
