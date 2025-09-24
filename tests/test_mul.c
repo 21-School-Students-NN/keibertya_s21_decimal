@@ -101,7 +101,7 @@ START_TEST(test_mul_edge_case_1) {
   s21_decimal value_2 = {{0x1, 0x0, 0x0, 0x1c0000}};
   s21_decimal result = {{0}};
   int s21_code_return = s21_mul(value_1, value_2, &result);
-  ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
+  ck_assert_int_eq(s21_code_return, S21_TOO_SMALL);
 }
 END_TEST
 #endif

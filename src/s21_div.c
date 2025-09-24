@@ -65,6 +65,6 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   int code = from_uint192_to_decimal(&quotient, result_scale, result);
   _set_sign(result, result_sign);
   if (code == S21_TOO_LARGE && result_sign) code = S21_TOO_SMALL;
-
+  if (_is_decimal_zero(result) && code == S21_SUCCESS) return S21_TOO_SMALL;
   return code;
 }

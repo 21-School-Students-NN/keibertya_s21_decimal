@@ -216,7 +216,7 @@ START_TEST(test_div_edge_case_3) {
   s21_decimal value_2 = {{0xafffffff, 0xc946f41a, 0x5e70f828, 0x0}};
   s21_decimal result = {{0}};
   int s21_code_return = s21_div(value_1, value_2, &result);
-  ck_assert_int_eq(s21_code_return, S21_TOO_LARGE);
+  ck_assert_int_eq(s21_code_return, S21_TOO_SMALL);
 }
 END_TEST
 

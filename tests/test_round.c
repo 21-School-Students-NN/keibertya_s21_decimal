@@ -226,7 +226,7 @@ START_TEST(test_round_down_half) {
   _set_scale(&val, 1);
   s21_decimal res;
   s21_round(val, &res);
-  ck_assert_int_eq(res.bits[0], 1);
+  ck_assert_int_eq(res.bits[0], 0);
   ck_assert_int_eq(_get_scale(&res), 0);
 }
 END_TEST

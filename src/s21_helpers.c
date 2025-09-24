@@ -418,7 +418,7 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
   if (src && dst) {
     uint32_t rem = 0;
     while ((src->bits[3] | src->bits[4] | src->bits[5]) || scale > MAX_SCALE) {
-      if (scale == 0 || !uint192_is_not_zero(src)) return S21_TOO_LARGE;
+      if (scale == 0) return S21_TOO_LARGE;
       rem = uint192_div_by_10(src);
       scale--;
     }
@@ -432,8 +432,7 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
         scale--;
         if (rem > 5) uint192_add(*src, one, src);
       }
-    } else if (scale == MAX_SCALE && !uint192_is_not_zero(src) && rem > 0)
-      return S21_TOO_LARGE;
+    }
     for (int i = 0; i < 3; ++i) {
       dst->bits[i] = src->bits[i];
     }
