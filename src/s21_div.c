@@ -3,45 +3,6 @@
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
 
-int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
-                s21_uint192_t *quotient, s21_uint192_t *remainder) {
-  s21_decimal tmp;
-  _init_decimal_zero(&tmp);
-  from_decimal_to_int192(tmp, quotient);
-  *remainder = dividend;
-
-  int bits_to_shift = 0;
-
-  // normalize divisor (shift left while higt bit != 1 or width >= dividend
-  // width)
-  while (!(divisor.bits[5] >> 31) &&
-         uint192_compare(divisor, *remainder) <= 0) {
-    uint192_shift_left(&divisor, 1);
-    bits_to_shift++;
-  }
-
-  // division
-  for (int i = 0; i <= bits_to_shift; i++) {
-    uint192_shift_left(quotient, 1);
-
-    if (uint192_compare(*remainder, divisor) >= 0) {
-      uint192_sub(*remainder, divisor, remainder);
-      quotient->bits[0] |= 1;  // set lower bit
-    }
-
-    if (i < bits_to_shift) {
-      uint192_shift_right(&divisor, 1);
-    }
-  }
-
-  return S21_SUCCESS;
-}
-
-int uint192_is_not_zero(s21_uint192_t *value) {
-  return (value->bits[0] | value->bits[1] | value->bits[2] | value->bits[3] |
-          value->bits[4] | value->bits[5]);
-}
-
 int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
   if (result == NULL) {
     return S21_ERROR;

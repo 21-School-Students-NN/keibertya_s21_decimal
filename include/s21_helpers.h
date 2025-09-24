@@ -214,6 +214,9 @@ uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
 int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
                 s21_uint192_t *result);
 
+int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
+                s21_uint192_t *quotient, s21_uint192_t *remainder);
+
 int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
              s21_uint192_t *res2);
 
@@ -223,6 +226,8 @@ uint32_t uint192_div_by_10(s21_uint192_t *value);
 
 int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
              s21_uint192_t *res2);
+
+int uint192_is_not_zero(s21_uint192_t *value);
 
 int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale, s21_decimal *dst);
 

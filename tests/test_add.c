@@ -104,6 +104,34 @@ START_TEST(test_add_different_scales) {
 }
 END_TEST
 
+START_TEST(test_add_same_abs_diff_signs) {
+  s21_decimal a = {{1234, 0, 0, 0x10000}};     // 123.4
+  s21_decimal b = {{1234, 0, 0, 0x80010000}};  // -123.4
+  s21_decimal result;
+
+  ck_assert_msg(
+      s21_add(a, b, &result) == S21_SUCCESS,
+      "s21_add returned error on add same_abs_diff_signs 123.4 + (-123.4)");
+
+  ck_assert_uint_eq(result.bits[0], 0);  // Scaled to 10^-2
+  ck_assert_uint_eq(_get_scale(&result), 1);
+}
+END_TEST
+
+START_TEST(test_add_same_abs_diff_signs2) {
+  s21_decimal a = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x1C0000}};  // max_val
+  s21_decimal b = {
+      {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x801C0000}};  // -max_val
+  s21_decimal result;
+
+  ck_assert_msg(s21_add(a, b, &result) == S21_SUCCESS,
+                "MAX_VAL^MAX_SCALE + (-MAX_VAL^MAX_SCALE)");
+
+  ck_assert_uint_eq(result.bits[0], 0);  //
+  ck_assert_uint_eq(_get_scale(&result), 28);
+}
+END_TEST
+
 #ifdef ENABLE_EXTENDED_TESTS
 
 #endif
@@ -174,7 +202,8 @@ START_TEST(test_add_edge_case_4) {
       s21_add(a, b, &result) == S21_SUCCESS,
       "s21_add returned error on add with diff scale 2^96 - 2 + 0.51");
 
-  for (int i = 0; i < 2; ++i) ck_assert_uint_eq(result.bits[i], 0xFFFFFFFF);
+  for (int i = 0; i < 2; ++i)
+    ck_assert_uint_eq(result.bits[i], 0xFFFFFFFF - 1 + i);
   ck_assert_uint_eq(_get_scale(&result), 0);
 }
 END_TEST
@@ -193,6 +222,8 @@ Suite* s21_add_suite() {
   tcase_add_test(tc, test_add_same_cale);
   tcase_add_test(tc, test_add_different_scales);
   tcase_add_test(tc, test_add_regular_rounding);
+  tcase_add_test(tc, test_add_same_abs_diff_signs);
+  tcase_add_test(tc, test_add_same_abs_diff_signs2);
 
 #ifdef ENABLE_EXTENDED_TESTS
   TCase* tc_extended = tcase_create("extended");
