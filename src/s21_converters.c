@@ -62,6 +62,13 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
         if (rem > 5 || (rem == 5 && (dst->bits[0] & 1))) dst->bits[0]++;
         dst->bits[3] = (int)(28) << 16;
       } else {
+        rem = dst->bits[0] % 10;
+        // cutting zeros in the end of mantissa
+        while (rem == 0 && exp < 0) {
+          dst->bits[0] /= 10;
+          rem = dst->bits[0] % 10;
+          exp++;
+        }
         dst->bits[3] = (int)(-exp) << 16;
       }
       if (src < 0) _set_sign(dst, 1);
