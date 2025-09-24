@@ -80,12 +80,13 @@ int s21_div(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 
   uint192_div(dividend, divisor, &quotient, &remainder);
 
-  if (quotient.bits[3]) return result_sign ? S21_TOO_SMALL : S21_TOO_LARGE;
+  if (quotient.bits[3] | quotient.bits[4] | quotient.bits[5])
+    return result_sign ? S21_TOO_SMALL : S21_TOO_LARGE;
 
   if (uint192_is_not_zero(&remainder)) {
     // add decimal digits while scale < max_scale
     while (uint192_is_not_zero(&remainder) && result_scale < MAX_PRECISION &&
-           quotient.bits[3] < 100) {
+           quotient.bits[5] < 0x204FCE5E) {
       uint192_mult_by_10(&remainder);
       uint192_mult_by_10(&quotient);
       result_scale++;

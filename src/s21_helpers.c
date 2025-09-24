@@ -228,8 +228,9 @@ int uint192_compare(s21_uint192_t value1, s21_uint192_t value2) {
   return 0;
 }
 
-void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
+int uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
   uint32_t carry;
+  uint32_t res_carry = 0;
   for (uint32_t s = 0; s < shift; ++s) {
     uint32_t prev_carry = 0;
     for (int i = 0; i < 6; ++i) {
@@ -237,7 +238,9 @@ void uint192_shift_left(s21_uint192_t *value, uint32_t shift) {
       value->bits[i] = (value->bits[i] << 1) | prev_carry;
       prev_carry = carry;
     }
+    res_carry = (res_carry << 1) | carry;
   }
+  return res_carry != 0;
 }
 
 void uint192_shift_right(s21_uint192_t *value, uint32_t shift) {
@@ -263,15 +266,12 @@ uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
   return carry;
 }
 
-void uint192_sub0(s21_uint192_t value1, s21_uint192_t value2,
-                  s21_uint192_t *result) {
-  uint64_t borrow = 0;
-  for (int i = 0; i < 3; i++) {
-    uint64_t diff = (uint64_t)value1.bits[i] - value2.bits[i] - borrow;
-    result->bits[i] = (uint32_t)diff;
-
-    borrow = (diff >> 63) & 1;
-  }
+void uint192_sub_bynary(s21_uint192_t value1, s21_uint192_t value2,
+                        s21_uint192_t *result) {
+  for (int i = 0; i < 6; i++) value2.bits[i] = ~value2.bits[i];
+  s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
+  uint192_add(value2, one, &value2);
+  uint192_add(value1, value2, result);
 }
 
 int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
@@ -293,7 +293,7 @@ int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
 
       sign_code = 0;
     }
-    uint192_sub0(*val1_ptr, *val2_ptr, result);
+    uint192_sub_bynary(*val1_ptr, *val2_ptr, result);
     return sign_code;
 
   } else {
@@ -306,14 +306,14 @@ int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
 }
 
 int uint192_mult_by_10(s21_uint192_t *value) {
-  uint32_t carry = 0;
-  for (int i = 0; i < 6; ++i) {
-    uint64_t temp = (uint64_t)value->bits[i] * 10 + carry;
-    value->bits[i] = (uint32_t)temp;
-    carry = (uint32_t)(temp >> 32);
-  }
-  return carry != 0;
+  s21_uint192_t value_x8 = *value;
+  s21_uint192_t value_x2 = *value;
+  int res = uint192_shift_left(&value_x8, 3);
+  uint192_shift_left(&value_x2, 1);
+  uint192_add(value_x8, value_x2, value);
+  return res;
 }
+
 int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
              s21_uint192_t *res2);
 
@@ -361,7 +361,7 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
       scale--;
     }
     // bank rounding
-    if (rem > 5 || (rem == 5 && src->bits[0] << 31)) {
+    if (rem > 5 || (rem == 5 && (src->bits[0] & 1))) {
       s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
       uint192_add(*src, one, src);
       if (scale == 0 && src->bits[3]) return S21_TOO_LARGE;

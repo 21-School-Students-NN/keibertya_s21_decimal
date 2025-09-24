@@ -19,7 +19,7 @@
 #define DECIMAL_MANTISSA_BITS 96
 
 typedef struct {
-  uint64_t bits[6];
+  uint32_t bits[6];
 } s21_uint192_t;
 
 /** @brief Data type for holding the meta information about decimal such `sign`
@@ -204,7 +204,7 @@ void from_decimal_to_int192(s21_decimal value, s21_uint192_t *result);
 
 int uint192_compare(s21_uint192_t value1, s21_uint192_t value2);
 
-void uint192_shift_left(s21_uint192_t *value, uint32_t shift);
+int uint192_shift_left(s21_uint192_t *value, uint32_t shift);
 
 void uint192_shift_right(s21_uint192_t *value, uint32_t shift);
 
