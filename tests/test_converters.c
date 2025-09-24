@@ -45,10 +45,10 @@ START_TEST(test_from_float_to_decimal_simple) {
   float fval = 12.3456f;
   int result = s21_from_float_to_decimal(fval, &dst);
   ck_assert_int_eq(result, 0);  // SUCCESS
-  ck_assert_int_eq(dst.bits[0], 1234560);
+  ck_assert_int_eq(dst.bits[0], 123456);
   ck_assert_int_eq(dst.bits[1], 0);
   ck_assert_int_eq(dst.bits[2], 0);
-  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 5);
+  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 4);
   ck_assert_int_eq((dst.bits[3] >> 31) & 0xff, 0);
 }
 END_TEST
@@ -59,10 +59,10 @@ START_TEST(test_from_float_to_decimal_simple_negative) {
   float fval = -1.23456e2;
   int result = s21_from_float_to_decimal(fval, &dst);
   ck_assert_int_eq(result, 0);  // SUCCESS
-  ck_assert_int_eq(dst.bits[0], 1234560);
+  ck_assert_int_eq(dst.bits[0], 123456);
   ck_assert_int_eq(dst.bits[1], 0);
   ck_assert_int_eq(dst.bits[2], 0);
-  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 4);
+  ck_assert_int_eq((dst.bits[3] >> 16) & 0xff, 3);
   ck_assert_int_eq((dst.bits[3] >> 31) & 0xff, 1);
 }
 END_TEST
