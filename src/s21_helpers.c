@@ -297,12 +297,43 @@ int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
     return sign_code;
 
   } else {
-    int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t * res1,
-                 s21_uint192_t * res2);
-
     for (int i = 0; i < 6; ++i) result->bits[i] = 0;
     return 1;
   }
+}
+
+int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
+                s21_uint192_t *quotient, s21_uint192_t *remainder) {
+  s21_decimal tmp;
+  _init_decimal_zero(&tmp);
+  from_decimal_to_int192(tmp, quotient);
+  *remainder = dividend;
+
+  int bits_to_shift = 0;
+
+  // normalize divisor (shift left while higt bit != 1 or width >= dividend
+  // width)
+  while (!(divisor.bits[5] >> 31) &&
+         uint192_compare(divisor, *remainder) <= 0) {
+    uint192_shift_left(&divisor, 1);
+    bits_to_shift++;
+  }
+
+  // division
+  for (int i = 0; i <= bits_to_shift; i++) {
+    uint192_shift_left(quotient, 1);
+
+    if (uint192_compare(*remainder, divisor) >= 0) {
+      uint192_sub(*remainder, divisor, remainder);
+      quotient->bits[0] |= 1;  // set lower bit
+    }
+
+    if (i < bits_to_shift) {
+      uint192_shift_right(&divisor, 1);
+    }
+  }
+
+  return S21_SUCCESS;
 }
 
 int uint192_mult_by_10(s21_uint192_t *value) {
@@ -314,17 +345,43 @@ int uint192_mult_by_10(s21_uint192_t *value) {
   return res;
 }
 
-int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
-             s21_uint192_t *res2);
-
 uint32_t uint192_div_by_10(s21_uint192_t *value) {
-  uint32_t reminder = 0;
+  //-------------------brut force
+  /*uint32_t reminder = 0;
   for (int i = 5; i >= 0; --i) {
     uint64_t temp = ((uint64_t)reminder << 32) | value->bits[i];
     value->bits[i] = (uint32_t)(temp / 10);
     reminder = (uint32_t)(temp % 10);
   }
-  return reminder;
+  return reminder;*/
+  //-------------------second version
+  /*s21_uint192_t q = *value;
+  s21_uint192_t q_shift = q;
+  uint192_shift_right(&q, 1);
+  uint192_shift_right(&q_shift, 2);
+  uint192_add(q, q_shift, &q);
+  for (uint32_t shift = 4; shift < 192; shift *= 2) {
+    q_shift = q;
+    uint192_shift_right(&q_shift, shift);
+    uint192_add(q, q_shift, &q);
+  }
+  uint192_shift_right(&q, 3);
+  q_shift = q;
+  uint192_mult_by_10(&q_shift);
+  s21_uint192_t rem;
+  uint192_sub_bynary(*value, q_shift, &rem);
+  if (rem.bits[0] > 9) {
+    rem.bits[0] = rem.bits[0] - 10;
+    s21_uint192_t one = {{1, 0, 0, 0, 0, 0}};
+    uint192_add(q, one, &q);
+  }
+  *value = q;
+  return rem.bits[0];*/
+  //-------------------using div
+  s21_uint192_t rem;
+  s21_uint192_t divisor = {{10, 0, 0, 0, 0, 0}};
+  uint192_div(*value, divisor, value, &rem);
+  return rem.bits[0];
 }
 
 int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
@@ -350,13 +407,18 @@ int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
   return scale1;
 }
 
+int uint192_is_not_zero(s21_uint192_t *value) {
+  return (value->bits[0] | value->bits[1] | value->bits[2] | value->bits[3] |
+          value->bits[4] | value->bits[5]);
+}
+
 int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
                             s21_decimal *dst) {
   int code = S21_ERROR;
   if (src && dst) {
     uint32_t rem = 0;
     while ((src->bits[3] | src->bits[4] | src->bits[5]) || scale > MAX_SCALE) {
-      if (scale == 0) return S21_TOO_LARGE;
+      if (scale == 0 || !uint192_is_not_zero(src)) return S21_TOO_LARGE;
       rem = uint192_div_by_10(src);
       scale--;
     }
@@ -370,7 +432,8 @@ int from_uint192_to_decimal(s21_uint192_t *src, meta_t scale,
         scale--;
         if (rem > 5) uint192_add(*src, one, src);
       }
-    }
+    } else if (scale == MAX_SCALE && !uint192_is_not_zero(src) && rem > 0)
+      return S21_TOO_LARGE;
     for (int i = 0; i < 3; ++i) {
       dst->bits[i] = src->bits[i];
     }
