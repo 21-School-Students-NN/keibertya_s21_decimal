@@ -4,6 +4,7 @@
 
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
+#include "../include/s21_suites.h"
 
 START_TEST(test_floor_positive_fraction) {
   s21_decimal in = make_decimal(145u, 0u, 0u, 2u, 0u);

@@ -5,6 +5,7 @@
 
 #include "../include/s21_decimal.h"
 #include "../include/s21_helpers.h"
+#include "../include/s21_suites.h"
 
 START_TEST(test_round_positive_less_half) {
   s21_decimal in = make_decimal(14u, 0u, 0u, 1u, 0u);

@@ -72,8 +72,7 @@ int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
  * @param scale represents scale of result
  * @param sign sign of result
  * @return s21_decimal
- * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
- * @date 29.07.2025
+ * @author Amfir (s21: tyananai)
  */
 s21_decimal make_decimal(uint32_t low, uint32_t mid, uint32_t high,
                          uint32_t scale, uint32_t sign);
