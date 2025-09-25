@@ -65,6 +65,20 @@ meta_t _get_sign(const s21_decimal *dec) __attribute__((nonnull));
 int _set_sign(s21_decimal *dec, const meta_t sign) __attribute__((nonnull));
 
 /**
+ * @brief initializes decimal mantissa, scale and sign separately
+ * @param low represents bit[0]
+ * @param mid represents bit[1]
+ * @param high represents bit[2]
+ * @param scale represents scale of result
+ * @param sign sign of result
+ * @return s21_decimal
+ * @author Demian Domozhirov (darkdomian@gmial.com | trelawnm at 21 School)
+ * @date 29.07.2025
+ */
+s21_decimal make_decimal(uint32_t low, uint32_t mid, uint32_t high,
+                         uint32_t scale, uint32_t sign);
+
+/**
  * @brief Initialize decimal with zero
  * @param dec Pointer to the decimal number to initialize
  * @return nothing

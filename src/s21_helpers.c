@@ -30,6 +30,16 @@ int _set_sign(s21_decimal *dec, const meta_t sign) {
 //  Other
 //======================================================================
 
+s21_decimal make_decimal(uint32_t low, uint32_t mid, uint32_t high,
+                         uint32_t scale, uint32_t sign) {
+  s21_decimal d;
+  d.bits[0] = low;
+  d.bits[1] = mid;
+  d.bits[2] = high;
+  d.bits[3] = ((scale & 0xFFu) << 16) | ((sign & 0x1u) << 31);
+  return d;
+}
+
 void _init_decimal_zero(s21_decimal *dec) {
   memset(dec, 0, sizeof(s21_decimal));
 }
@@ -45,38 +55,22 @@ int _is_decimal_zero(const s21_decimal *dec) {
 int _multiply_by_10(s21_decimal *value) {
   uint64_t temp;
   uint32_t carry = 0;
-
-  temp = (uint64_t)value->bits[0] * 10 + carry;
-  value->bits[0] = (uint32_t)temp;
-  carry = (uint32_t)(temp >> 32);
-
-  temp = (uint64_t)value->bits[1] * 10 + carry;
-  value->bits[1] = (uint32_t)temp;
-  carry = (uint32_t)(temp >> 32);
-
-  temp = (uint64_t)value->bits[2] * 10 + carry;
-  value->bits[2] = (uint32_t)temp;
-  carry = (uint32_t)(temp >> 32);
-
+  for (int i = 0; i < 3; ++i) {
+    temp = (uint64_t)value->bits[i] * 10 + carry;
+    value->bits[i] = (uint32_t)temp;
+    carry = (uint32_t)(temp >> 32);
+  }
   return carry != 0;
 }
 
 // Divide decimal by 10, return the remainder
 uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder) {
   uint64_t temp;
-
-  temp = ((uint64_t)remainder << 32) | value->bits[2];
-  value->bits[2] = (uint32_t)(temp / 10);
-  remainder = (uint32_t)(temp % 10);
-
-  temp = ((uint64_t)remainder << 32) | value->bits[1];
-  value->bits[1] = (uint32_t)(temp / 10);
-  remainder = (uint32_t)(temp % 10);
-
-  temp = ((uint64_t)remainder << 32) | value->bits[0];
-  value->bits[0] = (uint32_t)(temp / 10);
-  remainder = (uint32_t)(temp % 10);
-
+  for (int i = 2; i >= 0; --i) {
+    temp = ((uint64_t)remainder << 32) | value->bits[i];
+    value->bits[i] = (uint32_t)(temp / 10);
+    remainder = (uint32_t)(temp % 10);
+  }
   return remainder;
 }
 

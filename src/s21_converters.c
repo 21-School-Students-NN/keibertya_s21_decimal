@@ -50,20 +50,15 @@ int s21_from_float_to_decimal(float src, s21_decimal *dst) {
       dst->bits[0] = int_val;
       short exp = strtol(ptr + 1, NULL, 10) - 6;
       if (exp > 0) {
-        for (int e = 0; e < exp; ++e) {
-          _multiply_by_10(dst);
-        }
+        for (int e = 0; e < exp; ++e) _multiply_by_10(dst);
       } else if (exp < -28) {
-        for (int e = exp; e < -29; ++e) {
-          dst->bits[0] /= 10;
-        }
+        for (int e = exp; e < -29; ++e) dst->bits[0] /= 10;
         rem = dst->bits[0] % 10;
         dst->bits[0] /= 10;
         if (rem > 5 || (rem == 5 && (dst->bits[0] & 1))) dst->bits[0]++;
         dst->bits[3] = (int)(28) << 16;
-      } else {
+      } else {  // cutting zeros in the end of mantissa
         rem = dst->bits[0] % 10;
-        // cutting zeros in the end of mantissa
         while (rem == 0 && exp < 0) {
           dst->bits[0] /= 10;
           rem = dst->bits[0] % 10;
@@ -82,17 +77,8 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst) {
   int result = S21_ERROR;
   if (dst && s21_is_less_or_equal(src, max_int_dec) &&
       s21_is_greater_or_equal(src, min_int_dec)) {
-    *dst = 0;
-    if (s21_truncate(src, &src) == S21_SUCCESS) {
-      int scale = _get_scale(&src);
-      if (scale) {
-        for (int e = 0; e < scale; ++e) {
-          _divide_by_10(&src, 0);
-        }
-      }
-      *dst = (_get_sign(&src) ? -1 : 1) * src.bits[0];
-      result = S21_SUCCESS;
-    }
+    result = s21_truncate(src, &src);
+    *dst = (_get_sign(&src) ? -1 : 1) * src.bits[0];
   }
   return result;
 }
