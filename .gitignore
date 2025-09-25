@@ -5,5 +5,6 @@ s21_decimal.a
 test
 *.test
 *.log
+.vscode/*
 
 coverage/

@@ -6,18 +6,8 @@ int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 
   _init_decimal_zero(result);
 
-  if (_is_decimal_zero(&value_2)) {
-    for (int i = 0; i < 4; ++i) result->bits[i] = value_1.bits[i];
-    return S21_SUCCESS;
-  }
-  if (_is_decimal_zero(&value_1)) {
-    for (int i = 0; i < 4; ++i) result->bits[i] = value_2.bits[i];
-    _set_sign(result, 1 - _get_sign(&value_2));
-    return S21_SUCCESS;
-  }
-
   // A - B  <=>  A + (-B)
-  if (_get_sign(&value_1) == !_get_sign(&value_2)) {
+  if (_get_sign(&value_1) != _get_sign(&value_2)) {
     _set_sign(&value_2, _get_sign(&value_1));
     return s21_add(value_1, value_2, result);
   }

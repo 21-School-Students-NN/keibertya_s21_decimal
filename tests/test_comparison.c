@@ -31,6 +31,13 @@ START_TEST(test_is_less_zero) {
 END_TEST
 
 // ---------- is_equal ----------
+START_TEST(test_is_equal_zeros) {
+  s21_decimal a = {{0, 0, 0, 0}};
+  s21_decimal b = {{0, 0, 0, 0x801A0000}};
+  ck_assert_int_eq(s21_is_equal(a, b), 1);
+}
+END_TEST
+
 START_TEST(test_is_equal_basic) {
   s21_decimal a = {{123, 0, 0, 0}};
   s21_decimal b = {{123, 0, 0, 0}};
@@ -80,6 +87,7 @@ Suite *s21_comparison_suite(void) {
   tcase_add_test(tc, test_is_less_negative);
   tcase_add_test(tc, test_is_less_zero);
 
+  tcase_add_test(tc, test_is_equal_zeros);
   tcase_add_test(tc, test_is_equal_basic);
   tcase_add_test(tc, test_is_equal_scale);
 

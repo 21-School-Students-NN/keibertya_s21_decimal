@@ -2,7 +2,6 @@
 #define S21_HELPERS_H
 
 #include <stdio.h>
-#include <string.h>
 
 #include "s21_decimal.h"
 
@@ -132,8 +131,13 @@ uint32_t uint192_add(s21_uint192_t value1, s21_uint192_t value2,
 int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
                 s21_uint192_t *result);
 
+s21_uint192_t uint192_mul(s21_decimal value_1, s21_decimal value_2);
+
 int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
                 s21_uint192_t *quotient, s21_uint192_t *remainder);
+
+int uint92_div_frac_part(s21_uint192_t divisor, s21_uint192_t *quotient,
+                         s21_uint192_t remainder);
 
 int leveling(s21_decimal value_1, s21_decimal value_2, s21_uint192_t *res1,
              s21_uint192_t *res2);
