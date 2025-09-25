@@ -32,7 +32,7 @@ START_TEST(test_div_zero_by_number) {
 
   ck_assert_msg(s21_div(zero, number, &result) == S21_SUCCESS,
                 "s21_div failed on zero divided by number");
-  ck_assert_msg(_is_equal(result, expected), "0 / number should be 0");
+  ck_assert_msg(s21_is_equal(result, expected), "0 / number should be 0");
 }
 END_TEST
 
@@ -43,7 +43,7 @@ START_TEST(test_div_one_by_one) {
 
   ck_assert_msg(s21_div(one, one, &result) == S21_SUCCESS,
                 "s21_div failed on 1 / 1");
-  ck_assert_msg(_is_equal(result, expected), "1 / 1 should be 1");
+  ck_assert_msg(s21_is_equal(result, expected), "1 / 1 should be 1");
 }
 END_TEST
 
@@ -55,7 +55,7 @@ START_TEST(test_div_ten_by_two) {
 
   ck_assert_msg(s21_div(ten, two, &result) == S21_SUCCESS,
                 "s21_div failed on 10 / 2");
-  ck_assert_msg(_is_equal(result, expected), "10 / 2 should be 5");
+  ck_assert_msg(s21_is_equal(result, expected), "10 / 2 should be 5");
 }
 END_TEST
 
@@ -85,7 +85,7 @@ START_TEST(test_div_with_negative) {
 
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed with negative dividend");
-  ck_assert_msg(_is_equal(result, expected), "-100 / 10 should be -10");
+  ck_assert_msg(s21_is_equal(result, expected), "-100 / 10 should be -10");
 
   _set_sign(&num1, 0);      // 100
   _set_sign(&num2, 1);      // -10
@@ -93,14 +93,14 @@ START_TEST(test_div_with_negative) {
 
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed with negative divisor");
-  ck_assert_msg(_is_equal(result, expected), "100 / -10 should be -10");
+  ck_assert_msg(s21_is_equal(result, expected), "100 / -10 should be -10");
 
   _set_sign(&num1, 1);      // -100
   _set_sign(&expected, 0);  // 10
 
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed with both negative");
-  ck_assert_msg(_is_equal(result, expected), "-100 / -10 should be 10");
+  ck_assert_msg(s21_is_equal(result, expected), "-100 / -10 should be 10");
 }
 END_TEST
 
@@ -114,7 +114,7 @@ START_TEST(test_div_large_numbers) {
   // ck_assert_uint_eq(s21_div(num1, num2, &result), 0);
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed with large numbers");
-  ck_assert_msg(_is_equal(result, expected),
+  ck_assert_msg(s21_is_equal(result, expected),
                 "Max value / 1 should be max value");
 }
 END_TEST
@@ -128,7 +128,7 @@ START_TEST(test_div_rounding) {
   _set_scale(&expected, 1);  // 2.5
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed with rounding test");
-  ck_assert_msg(_is_equal(result, expected), "10 / 4 should be 2.5");
+  ck_assert_msg(s21_is_equal(result, expected), "10 / 4 should be 2.5");
 }
 END_TEST
 
@@ -144,7 +144,7 @@ START_TEST(test_div_periodic_fraction) {
 
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed on 1 / 3");
-  ck_assert_msg(_is_equal(result, expected),
+  ck_assert_msg(s21_is_equal(result, expected),
                 "1 / 3 should be 0.3333333333333333333333333333");
 }
 END_TEST
@@ -160,7 +160,7 @@ START_TEST(test_div_complex_periodic) {
 
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed on complex periodic fraction");
-  ck_assert_msg(_is_equal(result, expected),
+  ck_assert_msg(s21_is_equal(result, expected),
                 "1 / 13 should be 0.0769230769230769230769230769");
 }
 END_TEST
@@ -175,7 +175,7 @@ START_TEST(test_div_simple_case) {
 
   ck_assert_msg(s21_div(num1, num2, &result) == S21_SUCCESS,
                 "s21_div failed on complex periodic fraction");
-  ck_assert_msg(_is_equal(result, expected),
+  ck_assert_msg(s21_is_equal(result, expected),
                 "1 / 13 should be 0.0769230769230769230769230769");
 }
 END_TEST

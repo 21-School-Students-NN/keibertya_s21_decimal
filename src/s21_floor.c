@@ -26,7 +26,7 @@ int s21_floor(s21_decimal value, s21_decimal *result) {
         error = S21_ERROR;
       }
 
-      if (!error && sign == 1) {
+      if (!error && sign == 1 && !s21_is_equal(integer_part, value)) {
         s21_decimal one = {{1u, 0u, 0u, 0u}};
         if (s21_add(integer_part, one, result)) {
           error = S21_ERROR;
