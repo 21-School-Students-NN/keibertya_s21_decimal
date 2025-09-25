@@ -15,29 +15,13 @@ int s21_floor(s21_decimal value, s21_decimal *result) {
     if (scale == 0) {
       *result = value;
     } else {
-      s21_decimal integer_part;
-      _init_decimal_zero(&integer_part);
-
-      meta_t sign = _get_sign(&value);
-
-      _set_sign(&value, 0);
-
-      if (s21_truncate(value, &integer_part)) {
+      if (s21_truncate(value, result)) {
         error = S21_ERROR;
-      }
-
-      if (!error && sign == 1) {
+      } else if (_get_sign(&value) && !s21_is_equal(*result, value)) {
         s21_decimal one = {{1u, 0u, 0u, 0u}};
-        if (s21_add(integer_part, one, result)) {
+        if (s21_sub(*result, one, result)) {
           error = S21_ERROR;
         }
-      } else if (!error) {
-        *result = integer_part;
-      }
-
-      if (!error) {
-        _set_sign(result, sign);
-        _set_scale(result, 0);
       }
     }
   }
