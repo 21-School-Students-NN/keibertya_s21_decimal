@@ -9,17 +9,8 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
 
   // redirect to s21_sub in case of different sign
   if (_get_sign(&value_1) != _get_sign(&value_2)) {
-    const s21_decimal *minuend, *subtrahend;
-    if (_get_sign(&value_1)) {  // negative value_1
-      _set_sign(&value_1, 0);
-      minuend = &value_2;
-      subtrahend = &value_1;
-    } else {
-      _set_sign(&value_2, 0);
-      minuend = &value_1;
-      subtrahend = &value_2;
-    }
-    return s21_sub(*minuend, *subtrahend, result);
+    _set_sign(&value_2, _get_sign(&value_1));
+    return s21_sub(value_1, value_2, result);
   }
 
   // handle case where one of dec is zero

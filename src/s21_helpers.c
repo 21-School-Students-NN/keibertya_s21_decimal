@@ -41,7 +41,7 @@ s21_decimal make_decimal(uint32_t low, uint32_t mid, uint32_t high,
 }
 
 void _init_decimal_zero(s21_decimal *dec) {
-  memset(dec, 0, sizeof(s21_decimal));
+  *dec = make_decimal(0, 0, 0, 0, 0);
 }
 
 int _is_decimal_zero(const s21_decimal *dec) {
@@ -173,6 +173,20 @@ int uint192_sub(s21_uint192_t value1, s21_uint192_t value2,
   }
 }
 
+s21_uint192_t uint192_mul(s21_decimal value_1, s21_decimal value_2) {
+  s21_uint192_t product = {{0, 0, 0, 0, 0, 0}};
+  for (int i = 0; i < 3; ++i) {
+    uint64_t carry = 0;
+    for (int j = 0; j < 3; ++j) {
+      carry += (uint64_t)value_1.bits[i] * value_2.bits[j];
+      product.bits[i + j] += (uint32_t)carry;
+      carry = carry >> 32;
+    }
+    product.bits[i + 3] += carry;
+  }
+  return product;
+}
+
 int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
                 s21_uint192_t *quotient, s21_uint192_t *remainder) {
   s21_decimal tmp;
@@ -201,6 +215,26 @@ int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
     }
   }
   return S21_SUCCESS;
+}
+
+int uint92_div_frac_part(s21_uint192_t divisor, s21_uint192_t *quotient,
+                         s21_uint192_t remainder) {
+  int result_scale = 0;
+  if (uint192_is_not_zero(&remainder)) {
+    // add decimal digits while scale < max_scale
+    while (uint192_is_not_zero(&remainder) && result_scale < MAX_PRECISION &&
+           !(quotient->bits[5] >> 29)) {
+      uint192_mult_by_10(&remainder);
+      uint192_mult_by_10(quotient);
+      result_scale++;
+      if (uint192_compare(remainder, divisor) >= 1) {
+        s21_uint192_t new_quotient = {{0, 0, 0, 0, 0, 0}};
+        uint192_div(remainder, divisor, &new_quotient, &remainder);
+        uint192_add(*quotient, new_quotient, quotient);
+      }
+    }
+  }
+  return result_scale;
 }
 
 int uint192_mult_by_10(s21_uint192_t *value) {

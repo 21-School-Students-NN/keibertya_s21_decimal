@@ -4,32 +4,13 @@
 #include "../include/s21_helpers.h"
 
 int s21_is_equal(s21_decimal value_1, s21_decimal value_2) {
-  if (_is_decimal_zero(&value_1) && _is_decimal_zero(&value_2)) {
-    return S21_TRUE;
-  }
-
-  if (_get_sign(&value_1) != _get_sign(&value_2)) {
-    return S21_FALSE;
-  }
-
   s21_sub(value_1, value_2, &value_1);
-
   return _is_decimal_zero(&value_1);
 }
 
 int s21_is_less(s21_decimal value_1, s21_decimal value_2) {
-  int is_less = 0;
-
-  if (s21_is_equal(value_1, value_2)) {
-    return S21_FALSE;
-  }
-
   s21_sub(value_1, value_2, &value_1);
-  if (_get_sign(&value_1) == 1) {
-    is_less = 1;
-  }
-
-  return is_less;
+  return _is_decimal_zero(&value_1) ? S21_FALSE : _get_sign(&value_1);
 }
 
 int s21_is_greater(s21_decimal value_1, s21_decimal value_2) {
