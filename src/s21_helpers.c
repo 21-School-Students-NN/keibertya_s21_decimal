@@ -53,10 +53,9 @@ int _is_decimal_zero(const s21_decimal *dec) {
 //======================================================================
 
 int _multiply_by_10(s21_decimal *value) {
-  uint64_t temp;
   uint32_t carry = 0;
   for (int i = 0; i < 3; ++i) {
-    temp = (uint64_t)value->bits[i] * 10 + carry;
+    uint64_t temp = (uint64_t)value->bits[i] * 10 + carry;
     value->bits[i] = (uint32_t)temp;
     carry = (uint32_t)(temp >> 32);
   }
@@ -65,9 +64,8 @@ int _multiply_by_10(s21_decimal *value) {
 
 // Divide decimal by 10, return the remainder
 uint32_t _divide_by_10(s21_decimal *value, uint32_t remainder) {
-  uint64_t temp;
   for (int i = 2; i >= 0; --i) {
-    temp = ((uint64_t)remainder << 32) | value->bits[i];
+    uint64_t temp = ((uint64_t)remainder << 32) | value->bits[i];
     value->bits[i] = (uint32_t)(temp / 10);
     remainder = (uint32_t)(temp % 10);
   }
@@ -181,7 +179,6 @@ int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
   _init_decimal_zero(&tmp);
   from_decimal_to_int192(tmp, quotient);
   *remainder = dividend;
-
   int bits_to_shift = 0;
 
   // normalize divisor (shift left while higt bit != 1 or width >= dividend
@@ -195,17 +192,14 @@ int uint192_div(s21_uint192_t dividend, s21_uint192_t divisor,
   // division
   for (int i = 0; i <= bits_to_shift; i++) {
     uint192_shift_left(quotient, 1);
-
     if (uint192_compare(*remainder, divisor) >= 0) {
       uint192_sub(*remainder, divisor, remainder);
       quotient->bits[0] |= 1;  // set lower bit
     }
-
     if (i < bits_to_shift) {
       uint192_shift_right(&divisor, 1);
     }
   }
-
   return S21_SUCCESS;
 }
 
